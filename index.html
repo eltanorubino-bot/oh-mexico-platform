@@ -859,6 +859,42 @@ function PostCreatorTab() {
   const [selectedRatio, setSelectedRatio] = useState("square_1_1");
   const [showTemplates, setShowTemplates] = useState(true);
   const [postImage, setPostImage] = useState(null);
+  const [editingImage, setEditingImage] = useState(null);
+  const [imageAdjustments, setImageAdjustments] = useState({ brightness: 100, contrast: 100, saturate: 100 });
+
+  const PROMPT_SUGGESTIONS = {
+    "Menú": [
+      "Overhead shot of signature Mexican dish on rustic table, garnished with fresh cilantro and lime, warm restaurant lighting, professional food photography",
+      "Close-up of sizzling fajitas with steam rising, colorful peppers and onions, dark moody background, dramatic lighting",
+      "Beautifully plated Mexican dessert, churros with chocolate sauce, vibrant colors, shallow depth of field",
+    ],
+    "Lifestyle": [
+      "Friends toasting margaritas at outdoor Mexican restaurant terrace, Miami Beach sunset, warm golden hour lighting, candid lifestyle photography",
+      "Couple enjoying dinner at romantic Mexican restaurant, string lights, candles, South Beach ambiance",
+      "Group of friends sharing a molcajete, laughing, vibrant restaurant atmosphere, lifestyle editorial style",
+    ],
+    "Promociones": [
+      "Festive taco spread with happy hour vibes, colorful cocktails, chips and salsa, warm inviting lighting, promotional food photography",
+      "Mexican fiesta table setup with margarita pitchers and appetizers, party atmosphere, bright and energetic",
+      "Brunch scene with Mexican breakfast plates, mimosas, fresh fruit, bright natural light, lifestyle promotional",
+    ],
+    "Comunidad": [
+      "Diverse group of people enjoying Mexican food together, community table, warm atmosphere, inclusive and welcoming",
+      "Local neighborhood gathering at Mexican restaurant, outdoor seating, Miami street scene, documentary style",
+      "Staff members preparing food with passion, teamwork in kitchen, authentic behind-the-scenes moment",
+    ],
+    "Autenticidad": [
+      "Artisan chef hand-pressing tortillas in traditional Mexican kitchen, flour dusting, close-up hands, authentic documentary",
+      "Traditional Mexican ingredients arranged beautifully, dried chilies, spices, fresh produce, rustic wooden surface",
+      "Vintage-style photo of Mexican cooking traditions, warm nostalgic tones, cultural heritage",
+    ],
+  };
+
+  const enhancePrompt = (basicPrompt) => {
+    const enhancers = ["professional food photography", "warm ambient lighting", "shallow depth of field", "vibrant colors", "high resolution"];
+    const ratio = selectedRatio.includes("portrait") ? "vertical composition" : selectedRatio.includes("wide") ? "wide cinematic composition" : "square centered composition";
+    return basicPrompt + ", " + ratio + ", " + enhancers.slice(0, 4).join(", ");
+  };
 
   const POST_TEMPLATES = [
     { name: "Taco Tuesday", pillar: "Promociones", caption: "It's TACO TUESDAY! All tacos $3 from 4-7PM. Which one are you getting?", hashtags: "#TacoTuesday #OhMexico #MiamiDeals #TacoLovers", imagePrompt: "Vibrant overhead shot of 6 different Mexican tacos arranged in a circle on a rustic wooden board, colorful salsas, lime wedges, festive lighting, restaurant atmosphere, food photography" },
@@ -1070,11 +1106,31 @@ function PostCreatorTab() {
 
             {/* Image Prompt */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Prompt de Imagen</label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy }}>Prompt de Imagen</label>
+                <button onClick={() => { if (imagePrompt) setImagePrompt(enhancePrompt(imagePrompt)); }}
+                  disabled={!imagePrompt}
+                  style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 6, border: `1px solid ${COLORS.mustard}`, background: `${COLORS.mustard}10`, color: COLORS.mustard, fontSize: 11, fontWeight: 600, cursor: imagePrompt ? "pointer" : "default", opacity: imagePrompt ? 1 : 0.4 }}>
+                  <Sparkles size={12} /> Mejorar prompt
+                </button>
+              </div>
               <textarea value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}
-                placeholder="Describe la imagen que quieres generar... Sé específico con colores, ángulos, estilo y ambiente."
+                placeholder="Describe la imagen que quieres generar... S\u00e9 espec\u00edfico con colores, \u00e1ngulos, estilo y ambiente."
                 style={{ width: "100%", minHeight: 80, padding: 12, borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
               />
+              {!imagePrompt && PROMPT_SUGGESTIONS[selectedPillar] && (
+                <div style={{ marginTop: 8 }}>
+                  <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 600 }}>Sugerencias para {selectedPillar}:</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+                    {PROMPT_SUGGESTIONS[selectedPillar].map((sug, i) => (
+                      <button key={i} onClick={() => setImagePrompt(sug)}
+                        style={{ textAlign: "left", padding: "6px 10px", borderRadius: 6, border: `1px solid ${COLORS.lightGray}`, background: COLORS.white, fontSize: 11, color: COLORS.darkGray, cursor: "pointer", lineHeight: 1.3 }}>
+                        {sug.slice(0, 80)}...
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <button onClick={handleGenerateImage} disabled={generatingImage || !imagePrompt}
@@ -1092,17 +1148,22 @@ function PostCreatorTab() {
               {generatedImages.length === 0 ? (
                 <>
                   <Image size={32} color="#D1D5DB" />
-                  <span style={{ fontSize: 13, color: "#9CA3AF" }}>Las imágenes generadas aparecerán aquí</span>
-                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Escribí un prompt y hacé click en Generar</span>
+                  <span style={{ fontSize: 13, color: "#9CA3AF" }}>Las im\u00e1genes generadas aparecer\u00e1n aqu\u00ed</span>
+                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Escrib\u00ed un prompt y hac\u00e9 click en Generar</span>
                 </>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
                   <p style={{ fontSize: 13, color: COLORS.positive, fontWeight: 600, textAlign: "center" }}>{generatedImages.length} imagen(es) generada(s)</p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
                     {generatedImages.map(img => (
-                      <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: "1px solid #E5E7EB", cursor: "pointer" }}
-                        onClick={() => { setPostImage(img.src); }}>
+                      <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: editingImage?.id === img.id ? `2px solid ${COLORS.terracotta}` : "1px solid #E5E7EB", cursor: "pointer", position: "relative" }}
+                        onClick={() => { setPostImage(img.src); setEditingImage(img); setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 }); }}>
                         <img src={img.src} alt={img.prompt} style={{ width: "100%", height: "auto", display: "block" }} />
+                        {editingImage?.id === img.id && (
+                          <div style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: COLORS.terracotta, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Check size={12} color="white" />
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1110,6 +1171,29 @@ function PostCreatorTab() {
               )}
             </div>
           </SectionCard>
+
+          {editingImage && (
+            <SectionCard title="Ajustes de Imagen" subtitle="Edit\u00e1, regener\u00e1 o ped\u00ed variaciones">
+              <div style={{ borderRadius: 10, overflow: "hidden", marginBottom: 12 }}>
+                <img src={editingImage.src} alt="Editing" style={{ width: "100%", height: "auto", display: "block", filter: `brightness(${imageAdjustments.brightness}%) contrast(${imageAdjustments.contrast}%) saturate(${imageAdjustments.saturate}%)` }} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+                {[{ key: "brightness", label: "Brillo", icon: "\u2600\ufe0f" }, { key: "contrast", label: "Contraste", icon: "\u25d1" }, { key: "saturate", label: "Saturaci\u00f3n", icon: "\ud83c\udfa8" }].map(adj => (
+                  <div key={adj.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, width: 80, color: COLORS.darkGray }}>{adj.icon} {adj.label}</span>
+                    <input type="range" min="50" max="150" value={imageAdjustments[adj.key]} onChange={(e) => setImageAdjustments(prev => ({ ...prev, [adj.key]: Number(e.target.value) }))} style={{ flex: 1, accentColor: COLORS.terracotta }} />
+                    <span style={{ fontSize: 11, color: "#9CA3AF", width: 32, textAlign: "right" }}>{imageAdjustments[adj.key]}%</span>
+                  </div>
+                ))}
+                <button onClick={() => setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 })} style={{ alignSelf: "flex-end", fontSize: 11, color: "#9CA3AF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Resetear</button>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <button onClick={() => { const np = prompt("Edit\u00e1 el prompt para regenerar:", editingImage.prompt || imagePrompt); if (np) setImagePrompt(np); }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.navy}`, background: COLORS.white, color: COLORS.navy, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Edit3 size={14} /> Editar prompt y regenerar</button>
+                <button onClick={async () => { const vp = (editingImage.prompt || imagePrompt) + ", alternative angle, different composition, slight variation"; setGeneratingImage(true); const result = await FreepikAPI.generateImage(freepikKey, vp, { engine: selectedEngine, aspect_ratio: selectedRatio }); if (result && !result.error && result.images) setGeneratedImages(prev => [...result.images, ...prev]); setGeneratingImage(false); }} disabled={generatingImage} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.olive}`, background: `${COLORS.olive}10`, color: COLORS.olive, fontWeight: 600, fontSize: 13, cursor: generatingImage ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><RefreshCw size={14} /> Generar variaci\u00f3n</button>
+                <button onClick={() => { const canvas = document.createElement("canvas"); const im = new window.Image(); im.crossOrigin = "anonymous"; im.onload = () => { canvas.width = im.width; canvas.height = im.height; const ctx = canvas.getContext("2d"); ctx.filter = `brightness(${imageAdjustments.brightness}%) contrast(${imageAdjustments.contrast}%) saturate(${imageAdjustments.saturate}%)`; ctx.drawImage(im, 0, 0); setPostImage(canvas.toDataURL("image/jpeg", 0.95)); }; im.src = editingImage.src; }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.accent1})`, color: COLORS.white, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Check size={14} /> Usar en post (con ajustes)</button>
+              </div>
+            </SectionCard>
+          )}
         </div>
       </div>
 
@@ -1390,10 +1474,28 @@ function MediaLibraryTab() {
         <SectionCard title="Generar Imagen con Freepik AI" style={{ border: `2px dashed ${COLORS.navy}40`, background: `${COLORS.navy}04` }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Prompt de Imagen</label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy }}>Prompt de Imagen</label>
+                <button onClick={() => { if (mlPrompt) setMlPrompt(mlPrompt + ", professional food photography, warm ambient lighting, vibrant colors, high resolution, photorealistic"); }}
+                  disabled={!mlPrompt}
+                  style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, border: `1px solid ${COLORS.mustard}`, background: `${COLORS.mustard}10`, color: COLORS.mustard, fontSize: 11, fontWeight: 600, cursor: mlPrompt ? "pointer" : "default", opacity: mlPrompt ? 1 : 0.4 }}>
+                  <Sparkles size={11} /> Mejorar
+                </button>
+              </div>
               <textarea value={mlPrompt} onChange={(e) => setMlPrompt(e.target.value)}
                 placeholder="Describe la imagen que quieres generar... Ej: Overhead shot of colorful Mexican tacos with fresh salsa and lime"
                 style={{ width: "100%", padding: "12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical", fontFamily: "inherit" }} />
+              {/* Quick suggestions */}
+              {!mlPrompt && (
+                <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                  {["Plato signature mexicano", "C\u00f3ctel en barra de bar", "Exterior del restaurante", "Ingredientes frescos"].map((sug, i) => (
+                    <button key={i} onClick={() => setMlPrompt(sug + ", professional food photography, warm lighting, vibrant colors")}
+                      style={{ padding: "4px 10px", borderRadius: 16, border: `1px solid ${COLORS.lightGray}`, background: COLORS.white, fontSize: 11, color: COLORS.darkGray, cursor: "pointer" }}>
+                      {sug}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button onClick={async () => {
@@ -1692,14 +1794,16 @@ function OhMexicoPlatform() {
   return (
     <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", background: "#F9FAFB", minHeight: "100vh", color: COLORS.darkGray }}>
       {/* ─── HEADER ─── */}
-      <div style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, #2D3F6A 100%)`, padding: "20px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "stretch" }}>
+        {/* Logo section - white background */}
+        <div style={{ background: COLORS.white, padding: "12px 24px", display: "flex", alignItems: "center" }}>
           <img src="https://www.ohmexicorestaurant.com/wp-content/uploads/2021/12/oh-mexico-logo.png" alt="Oh! Mexico" style={{ height: 44, objectFit: "contain" }} />
-          <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.2)" }} />
-          <div>
+        </div>
+        {/* Rest of header - navy */}
+        <div style={{ flex: 1, background: `linear-gradient(135deg, ${COLORS.navy} 0%, #2D3F6A 100%)`, padding: "12px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
             <h1 style={{ margin: 0, color: COLORS.white, fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>Brand Management Suite</h1>
             <p style={{ margin: 0, color: "#94A3B8", fontSize: 13 }}>@ohmexico • 20.1K followers • 3 locations</p>
-          </div>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 20, background: apiConnected ? "#16a34a22" : "#dc262622", border: `1px solid ${apiConnected ? "#16a34a" : "#dc2626"}44` }}>
@@ -1709,6 +1813,7 @@ function OhMexicoPlatform() {
           <button onClick={() => setShowSettings(!showSettings)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer", display: "flex" }}>
             <Settings size={18} color={COLORS.white} />
           </button>
+        </div>
         </div>
       </div>
 
