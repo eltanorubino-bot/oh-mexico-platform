@@ -133,23 +133,24 @@ const COLORS = {
 // ─── PLATFORM URLS for Oh Mexico ───
 const PLATFORM_LINKS = {
   google: {
-    "Española Way": "https://www.google.com/maps/place/Oh!+Mexico",
-    "Ocean Drive": "https://www.google.com/maps/place/Oh!+Mexico+Taco+Shop",
-    "Lincoln Road": "https://www.google.com/maps/place/Oh!+Mexico+Lincoln+Road",
+    "Española Way": "https://www.google.com/maps/search/Oh+Mexico+Espanola+Way+Miami+Beach",
+    "Ocean Drive": "https://www.google.com/maps/search/Oh+Mexico+804+Ocean+Drive+Miami+Beach",
+    "Lincoln Road": "https://www.google.com/maps/search/Oh+Mexico+Lincoln+Road+Miami+Beach",
   },
   yelp: {
-    "Española Way": "https://www.yelp.com/biz/oh-mexico-miami-beach",
-    "Ocean Drive": "https://www.yelp.com/biz/oh-mexico-taco-shop-miami-beach",
-    "Lincoln Road": "https://www.yelp.com/biz/oh-mexico-lincoln-road-miami-beach",
+    "Española Way": "https://www.yelp.com/biz/oh-mexico-espanola-way-miami-beach",
+    "Ocean Drive": "https://www.yelp.com/biz/oh-mexico-miami-beach-6",
+    "Lincoln Road": "https://www.yelp.com/biz/oh-mexico-lincoln-road-miami-beach-2",
   },
   tripadvisor: {
-    "Española Way": "https://www.tripadvisor.com/Restaurant_Review-Oh_Mexico",
-    "Ocean Drive": "https://www.tripadvisor.com/Restaurant_Review-Oh_Mexico_Taco_Shop",
-    "Lincoln Road": "https://www.tripadvisor.com/Restaurant_Review-Oh_Mexico_Lincoln",
+    "Española Way": "https://www.tripadvisor.com/Restaurant_Review-g34439-d587683-Reviews-Oh_Mexico_Espanola_Way-Miami_Beach_Florida.html",
+    "Ocean Drive": "https://www.tripadvisor.com/Restaurant_Review-g34439-d23833284-Reviews-Oh_Mexico_Taco_Shop_Ocean_Drive-Miami_Beach_Florida.html",
+    "Lincoln Road": "https://www.tripadvisor.com/Restaurant_Review-g34439-d15044084-Reviews-Oh_Mexico_Lincoln_Road-Miami_Beach_Florida.html",
   },
   opentable: {
     "Española Way": "https://www.opentable.com/oh-mexico",
-    "Lincoln Road": "https://www.opentable.com/oh-mexico-lincoln-road",
+    "Ocean Drive": "https://www.opentable.com/r/oh-mexico-taco-shop-miami-beach",
+    "Lincoln Road": "https://www.opentable.com/r/oh-mexico-lincoln-road-miami-beach",
   },
 };
 
@@ -563,7 +564,9 @@ function ReputationTab() {
                 <div style={{ background: platform.bg, width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, color: platform.color }}>
                   {platform.icon}
                 </div>
-                <ExternalLink size={16} color="#9CA3AF" />
+                <a href={PLATFORM_LINKS[platform.name.toLowerCase().replace(" ", "")]?.[platform.locations[0].loc] || "#"} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, background: "#F3F4F6", textDecoration: "none" }} title={`Ver ${platform.name}`}>
+                  <ExternalLink size={16} color="#9CA3AF" />
+                </a>
               </div>
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.navy, marginBottom: 2 }}>{platform.name}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
