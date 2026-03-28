@@ -858,6 +858,7 @@ function PostCreatorTab() {
   const [selectedEngine, setSelectedEngine] = useState("sharpy");
   const [selectedRatio, setSelectedRatio] = useState("square_1_1");
   const [showTemplates, setShowTemplates] = useState(true);
+  const [postImage, setPostImage] = useState(null);
 
   const POST_TEMPLATES = [
     { name: "Taco Tuesday", pillar: "Promociones", caption: "It's TACO TUESDAY! All tacos $3 from 4-7PM. Which one are you getting?", hashtags: "#TacoTuesday #OhMexico #MiamiDeals #TacoLovers", imagePrompt: "Vibrant overhead shot of 6 different Mexican tacos arranged in a circle on a rustic wooden board, colorful salsas, lime wedges, festive lighting, restaurant atmosphere, food photography" },
@@ -1130,13 +1131,18 @@ function PostCreatorTab() {
               <div style={{
                 width: "100%", aspectRatio: postType === "story" || postType === "reel" ? "9/16" : postType === "feed" ? "1/1" : "4/5",
                 maxHeight: 320,
-                background: `linear-gradient(135deg, ${COLORS.terracotta}30, ${COLORS.mustard}20)`,
+                background: postImage ? "transparent" : `linear-gradient(135deg, ${COLORS.terracotta}30, ${COLORS.mustard}20)`,
                 display: "flex", alignItems: "center", justifyContent: "center",
+                overflow: "hidden",
               }}>
-                <div style={{ textAlign: "center" }}>
-                  <Camera size={36} color={COLORS.terracotta} />
-                  <p style={{ fontSize: 12, color: COLORS.terracotta, marginTop: 8 }}>{postType.toUpperCase()} • {selectedRatio.replace("_", " ")}</p>
-                </div>
+                {postImage ? (
+                  <img src={postImage} alt="Post preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <div style={{ textAlign: "center" }}>
+                    <Camera size={36} color={COLORS.terracotta} />
+                    <p style={{ fontSize: 12, color: COLORS.terracotta, marginTop: 8 }}>{postType.toUpperCase()} \u2022 {selectedRatio.replace("_", " ")}</p>
+                  </div>
+                )}
               </div>
               {/* Engagement bar */}
               <div style={{ display: "flex", gap: 16, padding: "10px 14px" }}>
@@ -1221,6 +1227,10 @@ function MediaLibraryTab() {
     { id: 18, name: "Mariachi Night", category: "locales", location: "Española Way", tags: ["mariachi", "music", "atmosphere"], url: null, date: "2026-02-22", size: "5.0 MB", dimensions: "4032×3024", usedIn: 3, color: "#1B2A4A" },
   ]);
   const [uploadForm, setUploadForm] = useState({ name: "", category: "platos", location: "Española Way", tags: "" });
+  const [showFreepikGen, setShowFreepikGen] = useState(false);
+  const [mlPrompt, setMlPrompt] = useState("");
+  const [mlGenerating, setMlGenerating] = useState(false);
+  const [mlGenerated, setMlGenerated] = useState([]);
 
   const CATEGORIES = [
     { id: "all", label: "Todos", icon: Grid3X3, count: mediaItems.length },
@@ -1279,8 +1289,8 @@ function MediaLibraryTab() {
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
             <Upload size={16} /> Subir Fotos
           </button>
-          <button
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+          <button onClick={() => setShowFreepikGen(!showFreepikGen)}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, background: showFreepikGen ? COLORS.terracotta : COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
             <Sparkles size={16} /> Generar con Freepik
           </button>
         </div>
@@ -1375,6 +1385,72 @@ function MediaLibraryTab() {
         </SectionCard>
       )}
 
+      {/* Freepik AI Generation Panel */}
+      {showFreepikGen && (
+        <SectionCard title="Generar Imagen con Freepik AI" style={{ border: `2px dashed ${COLORS.navy}40`, background: `${COLORS.navy}04` }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Prompt de Imagen</label>
+              <textarea value={mlPrompt} onChange={(e) => setMlPrompt(e.target.value)}
+                placeholder="Describe la imagen que quieres generar... Ej: Overhead shot of colorful Mexican tacos with fresh salsa and lime"
+                style={{ width: "100%", padding: "12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical", fontFamily: "inherit" }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <button onClick={async () => {
+                if (!mlPrompt) return;
+                setMlGenerating(true);
+                const result = await FreepikAPI.generateImage("FPSXf62e3dc95df686f556dc053c41690bdb", mlPrompt, { aspect_ratio: "square_1_1" });
+                if (result && !result.error && result.images) {
+                  setMlGenerated(prev => [...result.images, ...prev]);
+                } else if (result && result.error) {
+                  console.warn("ML Generation failed:", result.error);
+                }
+                setMlGenerating(false);
+              }}
+                disabled={mlGenerating || !mlPrompt}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 24px", borderRadius: 8, background: mlGenerating ? "#9CA3AF" : COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: mlGenerating ? "wait" : "pointer", opacity: !mlPrompt ? 0.5 : 1 }}>
+                {mlGenerating ? (<><span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTop: "2px solid white", borderRadius: "50%", animation: "spin 1s linear infinite" }} /> Generando...</>) : (<><Sparkles size={14} /> Generar</>)}
+              </button>
+              <button onClick={() => { setShowFreepikGen(false); setMlPrompt(""); }}
+                style={{ padding: "10px 16px", borderRadius: 8, background: COLORS.lightGray, color: COLORS.darkGray, border: "none", fontWeight: 500, fontSize: 14, cursor: "pointer" }}>
+                Cancelar
+              </button>
+            </div>
+            {mlGenerated.length > 0 && (
+              <div>
+                <p style={{ fontSize: 13, color: COLORS.positive, fontWeight: 600, marginBottom: 8 }}>{mlGenerated.length} imagen(es) generada(s)</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+                  {mlGenerated.map(img => (
+                    <div key={img.id} style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${COLORS.lightGray}`, cursor: "pointer", position: "relative" }}
+                      onClick={() => {
+                        const newItem = {
+                          id: Date.now(),
+                          name: img.prompt ? img.prompt.slice(0, 40) + "..." : "AI Generated",
+                          category: "platos",
+                          location: "Espa\u00f1ola Way",
+                          tags: ["ai-generated", "freepik"],
+                          url: img.src,
+                          date: new Date().toISOString().slice(0, 10),
+                          size: "AI",
+                          dimensions: "1024\u00d71024",
+                          usedIn: 0,
+                          color: "#C4622D",
+                        };
+                        setMediaItems(prev => [newItem, ...prev]);
+                      }}>
+                      <img src={img.src} alt={img.prompt} style={{ width: "100%", height: "auto", display: "block" }} />
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "rgba(0,0,0,0.6)", color: "white", padding: "6px 10px", fontSize: 11, textAlign: "center" }}>
+                        Click para agregar a biblioteca
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </SectionCard>
+      )}
+
       {/* Search + Filter Bar */}
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <div style={{ flex: 1, position: "relative" }}>
@@ -1417,13 +1493,18 @@ function MediaLibraryTab() {
                 boxShadow: selectedImage?.id === item.id ? `0 0 0 2px ${COLORS.terracotta}40` : "0 1px 3px rgba(0,0,0,0.06)",
                 transition: "all 0.2s", background: COLORS.white,
               }}>
-              {/* Image placeholder */}
+              {/* Image placeholder or actual image */}
               <div style={{
                 width: "100%", aspectRatio: item.category === "menus" ? "3/4" : "1/1",
-                background: `linear-gradient(135deg, ${item.color}25, ${item.color}10)`,
+                background: item.url ? "transparent" : `linear-gradient(135deg, ${item.color}25, ${item.color}10)`,
                 display: "flex", alignItems: "center", justifyContent: "center", position: "relative",
+                overflow: "hidden",
               }}>
-                <Camera size={28} color={`${item.color}60`} />
+                {item.url ? (
+                  <img src={item.url} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <Camera size={28} color={`${item.color}60`} />
+                )}
                 <div style={{ position: "absolute", top: 8, right: 8 }}>
                   <Badge text={catLabels[item.category]} color={catColors[item.category]} />
                 </div>
