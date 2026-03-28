@@ -4,6 +4,7 @@
     "platforms": [
       {
         "name": "Google",
+        "logo": "https://www.google.com/s2/favicons?domain=google.com&sz=128",
         "locations": [
           { "loc": "Española Way", "rating": 4.3, "reviews": 1847, "trend": "+0.1", "newReviews": 23, "responseRate": 78 },
           { "loc": "Ocean Drive", "rating": 4.5, "reviews": 312, "trend": "+0.2", "newReviews": 8, "responseRate": 65 },
@@ -12,6 +13,7 @@
       },
       {
         "name": "Yelp",
+        "logo": "https://www.google.com/s2/favicons?domain=yelp.com&sz=128",
         "locations": [
           { "loc": "Española Way", "rating": 3.5, "reviews": 1077, "trend": "0.0", "newReviews": 12, "responseRate": 45 },
           { "loc": "Ocean Drive", "rating": 4.0, "reviews": 43, "trend": "+0.5", "newReviews": 3, "responseRate": 60 },
@@ -20,6 +22,7 @@
       },
       {
         "name": "TripAdvisor",
+        "logo": "https://www.google.com/s2/favicons?domain=tripadvisor.com&sz=128",
         "locations": [
           { "loc": "Española Way", "rating": 4.2, "reviews": 2491, "trend": "0.0", "newReviews": 31, "responseRate": 55 },
           { "loc": "Ocean Drive", "rating": 4.8, "reviews": 169, "trend": "+0.1", "newReviews": 5, "responseRate": 70 },
@@ -28,6 +31,7 @@
       },
       {
         "name": "OpenTable",
+        "logo": "https://www.google.com/s2/favicons?domain=opentable.com&sz=128",
         "locations": [
           { "loc": "Española Way", "rating": 4.5, "reviews": 357, "trend": "+0.1", "newReviews": 14, "responseRate": 82 },
           { "loc": "Lincoln Road", "rating": 4.3, "reviews": 157, "trend": "0.0", "newReviews": 6, "responseRate": 75 }
