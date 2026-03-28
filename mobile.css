@@ -4,8 +4,14 @@
 @media (max-width: 768px) {
 
   /* === GLOBAL === */
-  #root, #root > div {
+  #root {
     max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  #root > div {
+    max-width: 100vw !important;
+  }
+  #root > div > div:nth-child(3) {
     overflow-x: hidden !important;
   }
 
