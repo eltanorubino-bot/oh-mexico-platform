@@ -1376,7 +1376,7 @@ function MediaLibraryTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [showUpload, setShowUpload] = useState(false);
-  const [mediaItems, setMediaItems] = useState([
+  const defaultMediaItems = [
     // Demo data — in production these would come from uploaded files / Freepik
     { id: 1, name: "Molcajete Hero Shot", category: "platos", location: "Española Way", tags: ["molcajete", "hero", "signature"], url: null, date: "2026-03-20", size: "4.2 MB", dimensions: "4032×3024", usedIn: 3, color: "#C4622D" },
     { id: 2, name: "Margarita Clásica", category: "tragos", location: "Ocean Drive", tags: ["margarita", "cocktail", "classic"], url: null, date: "2026-03-18", size: "3.8 MB", dimensions: "3024×4032", usedIn: 5, color: "#D4A030" },
@@ -1396,7 +1396,9 @@ function MediaLibraryTab() {
     { id: 16, name: "Chips & Salsa Sampler", category: "platos", location: "Española Way", tags: ["chips", "salsa", "appetizer"], url: null, date: "2026-02-26", size: "3.3 MB", dimensions: "4032×3024", usedIn: 2, color: "#C4622D" },
     { id: 17, name: "Tequila Sunrise Cocktail", category: "tragos", location: "Ocean Drive", tags: ["tequila sunrise", "cocktail", "tropical"], url: null, date: "2026-02-25", size: "3.6 MB", dimensions: "3024×4032", usedIn: 1, color: "#D4A030" },
     { id: 18, name: "Mariachi Night", category: "locales", location: "Española Way", tags: ["mariachi", "music", "atmosphere"], url: null, date: "2026-02-22", size: "5.0 MB", dimensions: "4032×3024", usedIn: 3, color: "#1B2A4A" },
-  ]);
+  ];
+  const [mediaItems, setMediaItems] = useState(function() { try { var saved = localStorage.getItem("ohMediaItems"); if (saved) { var parsed = JSON.parse(saved); if (parsed.length > 0) return parsed; } } catch(e) {} return defaultMediaItems; });
+  useEffect(function() { try { var toSave = mediaItems.filter(function(m) { return !m.url || !m.url.startsWith("data:") || m.url.length < 50000; }); localStorage.setItem("ohMediaItems", JSON.stringify(toSave)); } catch(e) {} }, [mediaItems]);
   const [uploadForm, setUploadForm] = useState({ name: "", category: "platos", location: "Española Way", tags: "" });
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadPreview, setUploadPreview] = useState(null);
