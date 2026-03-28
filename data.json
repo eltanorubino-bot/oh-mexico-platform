@@ -1,0 +1,120 @@
+{
+  "lastUpdated": "2026-03-28T12:00:00Z",
+  "reputation": {
+    "platforms": [
+      {
+        "name": "Google",
+        "locations": [
+          { "loc": "Española Way", "rating": 4.3, "reviews": 1847, "trend": "+0.1", "newReviews": 23, "responseRate": 78 },
+          { "loc": "Ocean Drive", "rating": 4.5, "reviews": 312, "trend": "+0.2", "newReviews": 8, "responseRate": 65 },
+          { "loc": "Lincoln Road", "rating": 4.1, "reviews": 624, "trend": "-0.1", "newReviews": 15, "responseRate": 72 }
+        ]
+      },
+      {
+        "name": "Yelp",
+        "locations": [
+          { "loc": "Española Way", "rating": 3.5, "reviews": 1077, "trend": "0.0", "newReviews": 12, "responseRate": 45 },
+          { "loc": "Ocean Drive", "rating": 4.0, "reviews": 43, "trend": "+0.5", "newReviews": 3, "responseRate": 60 },
+          { "loc": "Lincoln Road", "rating": 3.5, "reviews": 485, "trend": "+0.1", "newReviews": 9, "responseRate": 40 }
+        ]
+      },
+      {
+        "name": "TripAdvisor",
+        "locations": [
+          { "loc": "Española Way", "rating": 4.2, "reviews": 2491, "trend": "0.0", "newReviews": 31, "responseRate": 55 },
+          { "loc": "Ocean Drive", "rating": 4.8, "reviews": 169, "trend": "+0.1", "newReviews": 5, "responseRate": 70 },
+          { "loc": "Lincoln Road", "rating": 4.0, "reviews": 287, "trend": "+0.2", "newReviews": 11, "responseRate": 48 }
+        ]
+      },
+      {
+        "name": "OpenTable",
+        "locations": [
+          { "loc": "Española Way", "rating": 4.5, "reviews": 357, "trend": "+0.1", "newReviews": 14, "responseRate": 82 },
+          { "loc": "Lincoln Road", "rating": 4.3, "reviews": 157, "trend": "0.0", "newReviews": 6, "responseRate": 75 }
+        ]
+      }
+    ],
+    "recentReviews": [
+      { "platform": "Google", "loc": "Española Way", "rating": 5, "text": "Best margaritas in South Beach! The molcajete was incredible...", "date": "2026-03-26", "replied": true, "author": "Sarah M." },
+      { "platform": "Yelp", "loc": "Lincoln Road", "rating": 3, "text": "Food was good but waited 40 minutes for a table. No chips with salsa...", "date": "2026-03-25", "replied": false, "author": "Mike R." },
+      { "platform": "TripAdvisor", "loc": "Ocean Drive", "rating": 5, "text": "Amazing taco shop! The quesabirria tacos are to die for...", "date": "2026-03-25", "replied": true, "author": "Tourist_UK" },
+      { "platform": "Google", "loc": "Española Way", "rating": 2, "text": "Very overpriced for what you get. Small portions of rice and beans...", "date": "2026-03-24", "replied": false, "author": "John D." },
+      { "platform": "OpenTable", "loc": "Española Way", "rating": 4, "text": "Great dinner spot. The tequila selection is unmatched. Service was a bit slow...", "date": "2026-03-24", "replied": true, "author": "Diner_423" },
+      { "platform": "TripAdvisor", "loc": "Lincoln Road", "rating": 4, "text": "Really enjoyed the happy hour specials. Good vibes and great food...", "date": "2026-03-23", "replied": false, "author": "FoodLover22" }
+    ],
+    "ratingTrend": [
+      { "month": "Oct", "google": 4.2, "yelp": 3.4, "tripadvisor": 4.1, "opentable": 4.4 },
+      { "month": "Nov", "google": 4.2, "yelp": 3.4, "tripadvisor": 4.2, "opentable": 4.4 },
+      { "month": "Dic", "google": 4.3, "yelp": 3.5, "tripadvisor": 4.2, "opentable": 4.5 },
+      { "month": "Ene", "google": 4.3, "yelp": 3.5, "tripadvisor": 4.2, "opentable": 4.5 },
+      { "month": "Feb", "google": 4.3, "yelp": 3.5, "tripadvisor": 4.3, "opentable": 4.5 },
+      { "month": "Mar", "google": 4.4, "yelp": 3.5, "tripadvisor": 4.3, "opentable": 4.5 }
+    ],
+    "sentiment": [
+      { "category": "Comida", "positive": 82, "neutral": 12, "negative": 6 },
+      { "category": "Servicio", "positive": 68, "neutral": 18, "negative": 14 },
+      { "category": "Ambiente", "positive": 88, "neutral": 8, "negative": 4 },
+      { "category": "Precio", "positive": 45, "neutral": 30, "negative": 25 },
+      { "category": "Bebidas", "positive": 91, "neutral": 6, "negative": 3 },
+      { "category": "Ubicación", "positive": 85, "neutral": 10, "negative": 5 }
+    ],
+    "keywords": [
+      { "word": "margaritas", "count": 342, "sentiment": "positive" },
+      { "word": "guacamole", "count": 289, "sentiment": "positive" },
+      { "word": "authentic", "count": 234, "sentiment": "positive" },
+      { "word": "wait time", "count": 178, "sentiment": "negative" },
+      { "word": "atmosphere", "count": 167, "sentiment": "positive" },
+      { "word": "tacos", "count": 156, "sentiment": "positive" },
+      { "word": "pricey", "count": 145, "sentiment": "negative" },
+      { "word": "tequila", "count": 134, "sentiment": "positive" },
+      { "word": "molcajete", "count": 123, "sentiment": "positive" },
+      { "word": "portion size", "count": 98, "sentiment": "negative" },
+      { "word": "live music", "count": 87, "sentiment": "positive" },
+      { "word": "chips & salsa", "count": 76, "sentiment": "negative" }
+    ]
+  },
+  "intelligence": {
+    "trendingTopics": [
+      { "topic": "#TacoTuesday", "volume": "2.4M posts/week", "relevance": 95, "trend": "up", "category": "Recurring" },
+      { "topic": "#MiamiEats", "volume": "180K posts/week", "relevance": 92, "trend": "up", "category": "Local" },
+      { "topic": "#MexicanFood", "volume": "1.8M posts/week", "relevance": 88, "trend": "stable", "category": "Cuisine" },
+      { "topic": "#SouthBeach", "volume": "340K posts/week", "relevance": 85, "trend": "up", "category": "Local" },
+      { "topic": "#Margarita", "volume": "520K posts/week", "relevance": 82, "trend": "up", "category": "Drinks" },
+      { "topic": "#FoodPorn", "volume": "4.1M posts/week", "relevance": 78, "trend": "stable", "category": "General" },
+      { "topic": "#SpringBreak2026", "volume": "890K posts/week", "relevance": 90, "trend": "up", "category": "Seasonal" },
+      { "topic": "#BrunchMiami", "volume": "45K posts/week", "relevance": 72, "trend": "up", "category": "Local" }
+    ],
+    "competitors": [
+      { "name": "Lolo's Surf Cantina", "handle": "@lolossurfcantina", "followers": "8.2K", "engagement": "2.1%", "strength": "Beach vibes, breakfast crowd", "weakness": "Menos variedad de menu", "googleRating": 4.1, "yelpRating": 3.5 },
+      { "name": "Naked Taco", "handle": "@nakedtaco", "followers": "12.5K", "engagement": "1.8%", "strength": "Hotel guests, modern brand", "weakness": "Solo una locacion", "googleRating": 4.0, "yelpRating": 3.0 },
+      { "name": "La Cerveceria de Barrio", "handle": "@lacerveceriadebarrio", "followers": "45K", "engagement": "1.5%", "strength": "Gran alcance, mismo grupo", "weakness": "Diferente mercado", "googleRating": 4.2, "yelpRating": 3.8 }
+    ],
+    "competitorActivity": [
+      { "date": "Mar 26", "ohMexico": 3, "lolos": 1, "nakedTaco": 2, "cerveceria": 4 },
+      { "date": "Mar 25", "ohMexico": 2, "lolos": 2, "nakedTaco": 1, "cerveceria": 3 },
+      { "date": "Mar 24", "ohMexico": 4, "lolos": 1, "nakedTaco": 2, "cerveceria": 2 },
+      { "date": "Mar 23", "ohMexico": 2, "lolos": 0, "nakedTaco": 3, "cerveceria": 5 },
+      { "date": "Mar 22", "ohMexico": 3, "lolos": 2, "nakedTaco": 1, "cerveceria": 3 },
+      { "date": "Mar 21", "ohMexico": 1, "lolos": 1, "nakedTaco": 2, "cerveceria": 4 },
+      { "date": "Mar 20", "ohMexico": 3, "lolos": 1, "nakedTaco": 1, "cerveceria": 2 }
+    ],
+    "competitorPosts": [
+      { "competitor": "Lolo's Surf Cantina", "type": "Reel", "content": "New breakfast burrito launch", "likes": 234, "date": "Mar 26", "insight": "Estan empujando desayunos — oportunidad de diferenciacion" },
+      { "competitor": "Naked Taco", "type": "Carousel", "content": "Collab with DJ Khaled", "likes": 1890, "date": "Mar 25", "insight": "Influencer collab exitosa — considerar estrategia similar" },
+      { "competitor": "La Cerveceria", "type": "Reel", "content": "Happy hour 2x1 cerveza artesanal", "likes": 567, "date": "Mar 26", "insight": "Compiten en happy hour — diferenciar con tequila/mezcal" },
+      { "competitor": "Lolo's Surf Cantina", "type": "Story", "content": "Spring Break specials menu", "likes": 89, "date": "Mar 24", "insight": "Aprovechando Spring Break — nosotros tambien deberiamos" },
+      { "competitor": "Naked Taco", "type": "Feed", "content": "New cocktail menu reveal", "likes": 445, "date": "Mar 23", "insight": "Nuevo menu de cocktails — highlight nuestra variedad de 150+ tequilas" }
+    ],
+    "industryInsights": [
+      { "title": "Video corto domina Q1 2026", "desc": "Reels y TikToks de comida con menos de 15 seg tienen 3x mas engagement que posts estaticos.", "iconName": "Play", "type": "trend" },
+      { "title": "UGC supera branded content", "desc": "Contenido generado por usuarios tiene 28% mas conversion que branded en restaurantes.", "iconName": "Users", "type": "insight" },
+      { "title": "Spring Break Miami 2026", "desc": "Trafico turistico esperado +15% vs 2025. Pico de busquedas Mexican food Miami Beach.", "iconName": "TrendingUp", "type": "opportunity" },
+      { "title": "Instagram Reels > Stories", "desc": "Algorithm update: Reels ahora tienen 2.5x mas distribucion organica que Stories.", "iconName": "Sparkles", "type": "platform" }
+    ]
+  },
+  "locations": [
+    { "name": "Española Way", "reviews": 2491, "rating": 4.2, "topDish": "Molcajete", "dailyMargaritas": 65, "sentiment": 87 },
+    { "name": "Ocean Drive", "reviews": 169, "rating": 4.8, "topDish": "Quesabirria", "dailyMargaritas": 45, "sentiment": 92 },
+    { "name": "Lincoln Road", "reviews": 485, "rating": 4.3, "topDish": "Guacamole", "dailyMargaritas": 40, "sentiment": 84 }
+  ]
+}
