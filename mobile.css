@@ -165,6 +165,48 @@
     flex-wrap: wrap !important;
     text-align: center !important;
   }
+
+
+  /* === CONTENIDO TAB: Data Table Scroll === */
+  /* Table parent container needs overflow-x scroll */
+  #root div[style*="repeat(5, 70px)"] {
+    font-size: 10px !important;
+    min-width: 500px !important;
+  }
+  /* Table wrapper: the card that contains the table */
+  #root > div > div:nth-child(3) > div > div:first-child {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* === CONTENIDO TAB: Post Cards === */
+  /* Post cards (image + text) inside Top Posts / Competencia */
+  #root > div > div:nth-child(3) div[style*="border-radius"] div[style*="gap: 12px"] {
+    flex-direction: column !important;
+  }
+  #root > div > div:nth-child(3) div[style*="border-radius"] img[style*="border-radius"] {
+    width: 100% !important;
+    height: 120px !important;
+    object-fit: cover !important;
+  }
+
+  /* === CONTENIDO TAB: Content Type Cards (Reels/Carousels/Feed/Stories) === */
+  #root div[style*="repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  #root div[style*="repeat(4, 1fr)"] > div {
+    padding: 12px 8px !important;
+  }
+  #root div[style*="repeat(4, 1fr)"] > div p {
+    font-size: 11px !important;
+  }
+
+  /* === FIX: Don't wrap post card rows (image + text side by side) === */
+  #root > div > div:nth-child(3) div[style*="border-radius"][style*="padding"] > div[style*="display: flex"]:not([style*="column"]) {
+    flex-wrap: nowrap !important;
+  }
+
 }
 
 /* Small phones (iPhone SE, etc) */
