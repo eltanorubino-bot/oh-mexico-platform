@@ -342,24 +342,33 @@ const INDUSTRY_INSIGHTS = [
 
 // ─── FREEPIK API MODULE ───
 const FreepikAPI = {
-  baseUrl: "https://api.freepik.com/v1",
+  baseUrl: "https://blue-violet-5ac5freepik-proxy.eltanorubino.workers.dev/v1",
 
   async generateImage(apiKey, prompt, options = {}) {
     try {
-      const res = await fetch(`${this.baseUrl}/ai/mystic`, {
+      const res = await fetch(`${this.baseUrl}/ai/text-to-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-freepik-api-key": apiKey },
         body: JSON.stringify({
           prompt,
-          resolution: options.resolution || "1024x1024",
-          aspect_ratio: options.aspect_ratio || "square_1_1",
-          engine: options.engine || "sharpy",
-          filter_nsfw: true,
-          ...options,
+                image: { size: options.aspect_ratio || "square_1_1" },
         }),
       });
-      if (!res.ok) throw new Error(`API Error: ${res.status}`);
-      return await res.json();
+      if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData.message || `API Error: ${res.status}`);
+             }
+             const data = await res.json();
+             if (data.data && data.data.length > 0) {
+               return {
+                 images: data.data.map((img, i) => ({
+                   id: Date.now() + i,
+                   src: `data:image/jpeg;base64,${img.base64}`,
+                   prompt,
+                 })),
+               };
+             }
+             return { error: "No images returned" };
     } catch (e) {
       console.warn("Freepik API error:", e.message);
       return { error: e.message };
@@ -368,7 +377,7 @@ const FreepikAPI = {
 
   async checkTask(apiKey, taskId) {
     try {
-      const res = await fetch(`${this.baseUrl}/ai/mystic/${taskId}`, {
+      const res = await fetch(`${this.baseUrl}/ai/text-to-image/${taskId}`, {
         headers: { "x-freepik-api-key": apiKey },
       });
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
@@ -866,8 +875,10 @@ function PostCreatorTab() {
       engine: selectedEngine,
       aspect_ratio: selectedRatio,
     });
-    if (result && !result.error) {
-      setGeneratedImages(prev => [result, ...prev]);
+    if (result && !result.error && result.images) {
+      setGeneratedImages(prev => [...result.images, ...prev]);
+    } else if (result && result.error) {
+      console.warn("Generation failed:", result.error);
     }
     setGeneratingImage(false);
   };
@@ -1081,12 +1092,19 @@ function PostCreatorTab() {
                 <>
                   <Image size={32} color="#D1D5DB" />
                   <span style={{ fontSize: 13, color: "#9CA3AF" }}>Las imágenes generadas aparecerán aquí</span>
-                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Conecta tu Freepik API key para empezar</span>
+                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Escribí un prompt y hacé click en Generar</span>
                 </>
               ) : (
-                <div style={{ textAlign: "center" }}>
-                  <CheckCircle size={32} color={COLORS.positive} />
-                  <p style={{ fontSize: 13, color: COLORS.positive, fontWeight: 600 }}>{generatedImages.length} imagen(es) generada(s)</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
+                  <p style={{ fontSize: 13, color: COLORS.positive, fontWeight: 600, textAlign: "center" }}>{generatedImages.length} imagen(es) generada(s)</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
+                    {generatedImages.map(img => (
+                      <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: "1px solid #E5E7EB", cursor: "pointer" }}
+                        onClick={() => { setPostImage(img.src); }}>
+                        <img src={img.src} alt={img.prompt} style={{ width: "100%", height: "auto", display: "block" }} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
