@@ -21,7 +21,6 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #F9FAFB; }
 </head>
 <body>
 <div id="root"></div>
-<div id="__imgBridge" style="display:none"></div>
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
 const {
@@ -1190,7 +1189,7 @@ function PostCreatorTab() {
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
                     {generatedImages.map(img => (
                       <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: (editingImage && editingImage.id === img.id) ? `2px solid ${COLORS.terracotta}` : "1px solid #E5E7EB", cursor: "pointer", position: "relative" }}
-                        onClick={function() { window.dispatchEvent(new CustomEvent("ohSelectImage", { detail: { src: img.src, obj: img } })); }}>
+                        onClick={function() { setPostImage(img.src); setEditingImage(img); setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 }); }}>
                         <img src={img.src} alt={img.prompt} style={{ width: "100%", height: "auto", display: "block" }} />
                         {editingImage && editingImage.id === img.id && (
                           <div style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: COLORS.terracotta, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -2205,17 +2204,6 @@ function OhMexicoPlatform() {
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(OhMexicoPlatform));
-</script>
-<script>
-// Post-Babel bridge: handles image selection via CustomEvent
-window.addEventListener("ohSelectImage", function(e) {
-  var bridge = document.getElementById("__imgBridge");
-  if (bridge && typeof bridge.__setPostImage === "function") {
-    bridge.__setPostImage(e.detail.src);
-    bridge.__setEditingImage(e.detail.obj);
-    bridge.__setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 });
-  }
-});
 </script>
 </body>
 </html>
