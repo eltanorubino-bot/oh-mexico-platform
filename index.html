@@ -1398,6 +1398,16 @@ function MediaLibraryTab() {
     { id: 18, name: "Mariachi Night", category: "locales", location: "Española Way", tags: ["mariachi", "music", "atmosphere"], url: null, date: "2026-02-22", size: "5.0 MB", dimensions: "4032×3024", usedIn: 3, color: "#1B2A4A" },
   ]);
   const [uploadForm, setUploadForm] = useState({ name: "", category: "platos", location: "Española Way", tags: "" });
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploadPreview, setUploadPreview] = useState(null);
+  const fileInputRef = useRef(null);
+  const handleFileSelect = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    setUploadFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setUploadPreview(e.target.result);
+    reader.readAsDataURL(file);
+  };
   const [showFreepikGen, setShowFreepikGen] = useState(false);
   const [mlPrompt, setMlPrompt] = useState("");
   const [mlGenerating, setMlGenerating] = useState(false);
@@ -1427,7 +1437,7 @@ function MediaLibraryTab() {
       category: uploadForm.category,
       location: uploadForm.location,
       tags: uploadForm.tags.split(",").map(t => t.trim()).filter(Boolean),
-      url: null,
+      url: uploadPreview || null,
       date: new Date().toISOString().slice(0, 10),
       size: "-- MB",
       dimensions: "Pending",
@@ -1437,6 +1447,9 @@ function MediaLibraryTab() {
     setMediaItems(prev => [newItem, ...prev]);
     setUploadForm({ name: "", category: "platos", location: "Española Way", tags: "" });
     setShowUpload(false);
+    setUploadFile(null);
+    setUploadPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleDelete = (id) => {
@@ -1498,15 +1511,26 @@ function MediaLibraryTab() {
         <SectionCard title="Subir Nueva Foto" style={{ border: `2px dashed ${COLORS.terracotta}40`, background: `${COLORS.terracotta}04` }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {/* Drop zone */}
-            <div style={{
-              border: `2px dashed ${COLORS.lightGray}`, borderRadius: 12, padding: 40, textAlign: "center",
+            <div
+              onClick={() => fileInputRef.current.click()}
+              onDrop={(e) => { e.preventDefault(); handleFileSelect(e.dataTransfer.files[0]); }}
+              onDragOver={(e) => e.preventDefault()}
+              style={{
+              border: `2px dashed ${uploadPreview ? COLORS.accent : COLORS.lightGray}`, borderRadius: 12, padding: uploadPreview ? 12 : 40, textAlign: "center",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 12, cursor: "pointer",
               background: COLORS.white, minHeight: 180, justifyContent: "center",
             }}>
-              <Upload size={40} color="#D1D5DB" />
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: COLORS.navy }}>Arrastra fotos aquí</p>
-              <p style={{ margin: 0, fontSize: 13, color: "#9CA3AF" }}>o haz click para seleccionar</p>
-              <p style={{ margin: 0, fontSize: 11, color: "#D1D5DB" }}>JPG, PNG, WEBP • Max 20MB</p>
+              <input type="file" ref={fileInputRef} style={{display:"none"}} accept="image/*" onChange={(e) => handleFileSelect(e.target.files[0])} />
+              {uploadPreview ? (
+                <img src={uploadPreview} alt="Preview" style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 8, objectFit: "contain" }} />
+              ) : (
+                <>
+                  <Upload size={40} color="#D1D5DB" />
+                  <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: COLORS.navy }}>Arrastra fotos aquí</p>
+                  <p style={{ margin: 0, fontSize: 13, color: "#9CA3AF" }}>o haz click para seleccionar</p>
+                  <p style={{ margin: 0, fontSize: 11, color: "#D1D5DB" }}>JPG, PNG, WEBP • Max 20MB</p>
+                </>
+              )}
             </div>
             {/* Form */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
