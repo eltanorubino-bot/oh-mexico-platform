@@ -158,7 +158,7 @@ const PLATFORM_LINKS = {
 // ─── REPUTATION DATA (overwritten by data.json when available) ───
 let REPUTATION_PLATFORMS = [
   {
-    name: "Google", icon: "G", color: COLORS.google, bg: "#4285F415",
+    name: "Google", icon: "G", logo: "https://logo.clearbit.com/google.com", color: COLORS.google, bg: "#4285F415",
     locations: [
       { loc: "Española Way", rating: 4.3, reviews: 1847, trend: "+0.1", newReviews: 23, responseRate: 78 },
       { loc: "Ocean Drive", rating: 4.5, reviews: 312, trend: "+0.2", newReviews: 8, responseRate: 65 },
@@ -166,7 +166,7 @@ let REPUTATION_PLATFORMS = [
     ],
   },
   {
-    name: "Yelp", icon: "Y", color: COLORS.yelp, bg: "#D3232315",
+    name: "Yelp", icon: "Y", logo: "https://logo.clearbit.com/yelp.com", color: COLORS.yelp, bg: "#D3232315",
     locations: [
       { loc: "Española Way", rating: 3.5, reviews: 1077, trend: "0.0", newReviews: 12, responseRate: 45 },
       { loc: "Ocean Drive", rating: 4.0, reviews: 43, trend: "+0.5", newReviews: 3, responseRate: 60 },
@@ -174,7 +174,7 @@ let REPUTATION_PLATFORMS = [
     ],
   },
   {
-    name: "TripAdvisor", icon: "TA", color: COLORS.tripadvisor, bg: "#34E0A115",
+    name: "TripAdvisor", icon: "TA", logo: "https://logo.clearbit.com/tripadvisor.com", color: COLORS.tripadvisor, bg: "#34E0A115",
     locations: [
       { loc: "Española Way", rating: 4.2, reviews: 2491, trend: "0.0", newReviews: 31, responseRate: 55 },
       { loc: "Ocean Drive", rating: 4.8, reviews: 169, trend: "+0.1", newReviews: 5, responseRate: 70 },
@@ -182,7 +182,7 @@ let REPUTATION_PLATFORMS = [
     ],
   },
   {
-    name: "OpenTable", icon: "OT", color: COLORS.opentable, bg: "#DA374315",
+    name: "OpenTable", icon: "OT", logo: "https://logo.clearbit.com/opentable.com", color: COLORS.opentable, bg: "#DA374315",
     locations: [
       { loc: "Española Way", rating: 4.5, reviews: 357, trend: "+0.1", newReviews: 14, responseRate: 82 },
       { loc: "Lincoln Road", rating: 4.3, reviews: 157, trend: "0.0", newReviews: 6, responseRate: 75 },
@@ -328,9 +328,9 @@ const CONTENT_PILLARS = [
 ];
 
 let LOCATIONS_DATA = [
-  { name: "Española Way", reviews: 2491, rating: 4.2, topDish: "Molcajete", dailyMargaritas: 65, sentiment: 87 },
-  { name: "Ocean Drive", reviews: 169, rating: 4.8, topDish: "Quesabirria", dailyMargaritas: 45, sentiment: 92 },
-  { name: "Lincoln Road", reviews: 485, rating: 4.3, topDish: "Guacamole", dailyMargaritas: 40, sentiment: 84 },
+  { name: "Española Way", reviews: 2491, rating: 4.2, topDish: "Molcajete", dailyMargaritas: 65, sentiment: 87, photo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=200&fit=crop" },
+  { name: "Ocean Drive", reviews: 169, rating: 4.8, topDish: "Quesabirria", dailyMargaritas: 45, sentiment: 92, photo: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop" },
+  { name: "Lincoln Road", reviews: 485, rating: 4.3, topDish: "Guacamole", dailyMargaritas: 40, sentiment: 84, photo: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&h=200&fit=crop" },
 ];
 
 // ─── TRENDS & INTELLIGENCE DATA ───
@@ -562,8 +562,8 @@ function ReputationTab() {
                 transition: "all 0.2s",
               }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div style={{ background: platform.bg, width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, color: platform.color }}>
-                  {platform.icon}
+                <div style={{ background: platform.bg, width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  {platform.logo ? <img src={platform.logo} alt={platform.name} style={{ width: 30, height: 30, objectFit: "contain" }} /> : <span style={{ fontWeight: 800, fontSize: 16, color: platform.color }}>{platform.icon}</span>}
                 </div>
                 <a href={PLATFORM_LINKS[platform.name.toLowerCase().replace(" ", "")]?.[platform.locations[0].loc] || "#"} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, background: "#F3F4F6", textDecoration: "none" }} title={`Ver ${platform.name}`}>
                   <ExternalLink size={16} color="#9CA3AF" />
@@ -893,6 +893,28 @@ function PostCreatorTab() {
   const [postImage, setPostImage] = useState(null);
   const [editingImage, setEditingImage] = useState(null);
   const [imageAdjustments, setImageAdjustments] = useState({ brightness: 100, contrast: 100, saturate: 100 });
+
+  const [postHistory, setPostHistory] = useState(function() { try { return JSON.parse(localStorage.getItem("ohPostHistory") || "[]"); } catch(e) { return []; } });
+  const [showHistory, setShowHistory] = useState(false);
+
+  var savePost = function(status) {
+    var newPost = {
+      id: Date.now(),
+      type: postType,
+      pillar: selectedPillar,
+      caption: caption,
+      hashtags: hashtags,
+      image: postImage,
+      engine: selectedEngine,
+      ratio: selectedRatio,
+      status: status,
+      date: new Date().toISOString()
+    };
+    var updated = [newPost].concat(postHistory);
+    setPostHistory(updated);
+    try { localStorage.setItem("ohPostHistory", JSON.stringify(updated)); } catch(e) {}
+    alert(status === "draft" ? "Borrador guardado" : "Post programado");
+  };
 
   const PROMPT_SUGGESTIONS = {
     "Menú": [
@@ -1299,15 +1321,47 @@ function PostCreatorTab() {
               </div>
             </div>
             <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-              <button style={{ flex: 1, padding: "12px", borderRadius: 10, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, cursor: "pointer" }}>
+              <button onClick={function() { savePost("draft"); }} style={{ flex: 1, padding: "12px", borderRadius: 10, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, cursor: "pointer" }}>
                 Guardar Borrador
               </button>
-              <button style={{ flex: 1, padding: "12px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, cursor: "pointer" }}>
+              <button onClick={function() { savePost("scheduled"); }} style={{ flex: 1, padding: "12px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, cursor: "pointer" }}>
                 Programar Post
               </button>
             </div>
           </div>
         </div>
+      
+      </SectionCard>
+
+      {/* Post History */}
+      <SectionCard title="Historial de Posts" icon={Clock} action={
+        <button onClick={function() { setShowHistory(!showHistory); }} style={{ background: COLORS.navy + "10", border: "none", padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, color: COLORS.navy, cursor: "pointer" }}>
+          {showHistory ? "Ocultar" : "Ver"} ({postHistory.length})
+        </button>
+      }>
+        {showHistory && postHistory.length === 0 && <p style={{ color: "#9CA3AF", fontSize: 14, textAlign: "center", padding: 20 }}>No hay posts guardados aun.</p>}
+        {showHistory && postHistory.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 400, overflowY: "auto" }}>
+            {postHistory.map(function(p) {
+              return (
+                <div key={p.id} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray, background: COLORS.white }}>
+                  {p.image && <img src={p.image} alt="" style={{ width: 60, height: 60, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                      <span style={{ background: p.status === "draft" ? "#FCD34D" : COLORS.terracotta, color: p.status === "draft" ? COLORS.navy : COLORS.white, padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>{p.status === "draft" ? "Borrador" : "Programado"}</span>
+                      <span style={{ fontSize: 11, color: "#9CA3AF" }}>{new Date(p.date).toLocaleDateString("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: 12, color: COLORS.darkGray, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.caption || "Sin caption"}</p>
+                    <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                      <span style={{ fontSize: 10, color: "#9CA3AF" }}>{p.type}</span>
+                      <span style={{ fontSize: 10, color: "#9CA3AF" }}>{p.pillar}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </SectionCard>
     </div>
   );
@@ -2051,6 +2105,68 @@ function OhMexicoPlatform() {
               ))}
             </div>
           </div>
+
+          {/* Visual Content Analysis */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
+            <SectionCard title="Nuestros Top Posts" icon={Heart}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {[
+                  { img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=200&h=200&fit=crop", type: "Reel", caption: "Molcajete prep behind the scenes", likes: "2.3K", good: "Behind-scenes content genera alto engagement", bad: "Audio podria mejorar, musica generica" },
+                  { img: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=200&h=200&fit=crop", type: "Carousel", caption: "Top 5 tacos you MUST try", likes: "1.8K", good: "Formato listicle funciona bien, buenas fotos", bad: "Demasiado texto en slides" },
+                  { img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop", type: "Reel", caption: "Margarita Monday vibes", likes: "3.1K", good: "Trending audio, excelente timing", bad: "Poca mencion de la marca" },
+                  { img: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?w=200&h=200&fit=crop", type: "Feed", caption: "New seasonal menu launch", likes: "956", good: "Fotografia profesional, colores vibrantes", bad: "Caption muy largo, pierde atencion" },
+                ].map(function(post, i) {
+                  return (
+                    <div key={i} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray }}>
+                      <img src={post.img} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                          <span style={{ background: COLORS.terracotta + "15", color: COLORS.terracotta, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{post.type}</span>
+                          <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.likes} likes</span>
+                        </div>
+                        <p style={{ margin: "0 0 6px", fontSize: 12, color: COLORS.darkGray }}>{post.caption}</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                          <div style={{ fontSize: 11, color: COLORS.positive }}>&#10003; {post.good}</div>
+                          <div style={{ fontSize: 11, color: COLORS.negative }}>&#10007; {post.bad}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </SectionCard>
+            <SectionCard title="Posts de Competencia" icon={Eye}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {[
+                  { img: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?w=200&h=200&fit=crop", brand: "Naked Taco", type: "Reel", caption: "Collab with DJ Khaled", likes: "1.9K", good: "Influencer collab masivo, alta visibilidad", bad: "No replicable sin budget alto", insight: "Considerar micro-influencers locales" },
+                  { img: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=200&h=200&fit=crop", brand: "Lolo's Surf", type: "Reel", caption: "New breakfast burrito launch", likes: "234", good: "Buen product launch, close-up shots", bad: "Audio generico, sin hook claro", insight: "Su push de desayunos es oportunidad" },
+                  { img: "https://images.unsplash.com/photo-1535473895227-bdecb20fb157?w=200&h=200&fit=crop", brand: "La Cerveceria", type: "Reel", caption: "Happy hour 2x1 cerveza", likes: "567", good: "Promocion clara y directa", bad: "Visual poco original", insight: "Diferenciar con tequila/mezcal" },
+                  { img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&h=200&fit=crop", brand: "Naked Taco", type: "Feed", caption: "New cocktail menu reveal", likes: "445", good: "Estetica limpia, buena fotografia", bad: "Poco engagement en comentarios", insight: "Destacar variedad de 150+ tequilas" },
+                ].map(function(post, i) {
+                  return (
+                    <div key={i} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray }}>
+                      <img src={post.img} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.navy }}>{post.brand}</span>
+                          <span style={{ background: COLORS.mustard + "15", color: COLORS.mustard, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{post.type}</span>
+                          <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.likes} likes</span>
+                        </div>
+                        <p style={{ margin: "0 0 6px", fontSize: 12, color: COLORS.darkGray }}>{post.caption}</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                          <div style={{ fontSize: 11, color: COLORS.positive }}>&#10003; {post.good}</div>
+                          <div style={{ fontSize: 11, color: COLORS.negative }}>&#10007; {post.bad}</div>
+                        </div>
+                        <div style={{ marginTop: 4, padding: "4px 8px", borderRadius: 6, background: COLORS.mustard + "12", border: "1px solid " + COLORS.mustard + "25" }}>
+                          <span style={{ fontSize: 11, color: COLORS.darkGray, fontStyle: "italic" }}>&#128161; {post.insight}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </SectionCard>
+          </div>
         )}
 
         {/* === CALENDAR === */}
@@ -2160,11 +2276,16 @@ function OhMexicoPlatform() {
             <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Performance por Locación</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               {LOCATIONS_DATA.map((loc) => (
-                <SectionCard key={loc.name}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                    <MapPin size={18} color={COLORS.terracotta} />
-                    <h3 style={{ margin: 0, fontSize: 18, color: COLORS.navy }}>{loc.name}</h3>
+                <SectionCard key={loc.name} style={{ padding: 0, overflow: "hidden" }}>
+                  <div style={{ position: "relative", width: "100%", height: 140, overflow: "hidden" }}>
+                    <img src={loc.photo} alt={loc.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(transparent, rgba(0,0,0,0.6))" }} />
+                    <div style={{ position: "absolute", bottom: 10, left: 14, display: "flex", alignItems: "center", gap: 6 }}>
+                      <MapPin size={16} color={COLORS.mustard} />
+                      <h3 style={{ margin: 0, fontSize: 17, color: COLORS.white, textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>{loc.name}</h3>
+                    </div>
                   </div>
+                  <div style={{ padding: "16px 20px 20px" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                     <div><div style={{ fontSize: 24, fontWeight: 700, color: COLORS.navy }}>{loc.rating}</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>Rating</div></div>
                     <div><div style={{ fontSize: 24, fontWeight: 700, color: COLORS.terracotta }}>{loc.reviews.toLocaleString()}</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>Reviews</div></div>
@@ -2176,6 +2297,7 @@ function OhMexicoPlatform() {
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontSize: 13, color: "#6B7280" }}>Sentiment</span><span style={{ fontSize: 13, fontWeight: 600, color: loc.sentiment > 85 ? COLORS.positive : COLORS.mustard }}>{loc.sentiment}%</span></div>
                       <div style={{ height: 6, background: COLORS.lightGray, borderRadius: 3 }}><div style={{ height: "100%", width: `${loc.sentiment}%`, background: loc.sentiment > 85 ? COLORS.positive : COLORS.mustard, borderRadius: 3 }} /></div>
                     </div>
+                  </div>
                   </div>
                 </SectionCard>
               ))}
