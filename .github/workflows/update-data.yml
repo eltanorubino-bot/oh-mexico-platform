@@ -1,0 +1,48 @@
+name: Daily Data Update
+
+on:
+  schedule:
+    # Run daily at 8:00 AM EST (13:00 UTC)
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub Actions UI
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run data update script
+        env:
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          YELP_API_KEY: ${{ secrets.YELP_API_KEY }}
+          TRIPADVISOR_API_KEY: ${{ secrets.TRIPADVISOR_API_KEY }}
+        run: node scripts/update-data.js
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet data.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "Oh Mexico Bot"
+          git config user.email "bot@ohmexicorestaurant.com"
+          git add data.json
+          git commit -m "📊 Daily data update — $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
