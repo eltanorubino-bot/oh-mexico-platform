@@ -21,6 +21,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #F9FAFB; }
 </head>
 <body>
 <div id="root"></div>
+<div id="__imgBridge" style="display:none"></div>
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
 const {
@@ -2204,6 +2205,17 @@ function OhMexicoPlatform() {
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(OhMexicoPlatform));
+</script>
+<script>
+// Post-Babel bridge: handles image selection via CustomEvent
+window.addEventListener("ohSelectImage", function(e) {
+  var bridge = document.getElementById("__imgBridge");
+  if (bridge && typeof bridge.__setPostImage === "function") {
+    bridge.__setPostImage(e.detail.src);
+    bridge.__setEditingImage(e.detail.obj);
+    bridge.__setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 });
+  }
+});
 </script>
 </body>
 </html>
