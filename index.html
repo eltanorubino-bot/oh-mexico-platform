@@ -1189,11 +1189,11 @@ function PostCreatorTab() {
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
                     {generatedImages.map(img => (
                       <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: editingImage?.id === img.id ? `2px solid ${COLORS.terracotta}` : "1px solid #E5E7EB", cursor: "pointer", position: "relative" }}
-                        onClick={() => { setPostImage(img.src); setEditingImage(img); setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 }); }}>
+                        onClick={function() { handleSelectGeneratedImage(img.src, img); }}>
                         <img src={img.src} alt={img.prompt} style={{ width: "100%", height: "auto", display: "block" }} />
-                        {editingImage?.id === img.id && (
+                        {editingImage && editingImage.id === img.id && (
                           <div style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: COLORS.terracotta, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Check size={12} color="white" />
+                            <CheckCircle size={12} color="white" />
                           </div>
                         )}
                       </div>
@@ -1222,7 +1222,7 @@ function PostCreatorTab() {
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <button onClick={() => { const np = prompt("Editá el prompt para regenerar:", editingImage.prompt || imagePrompt); if (np) setImagePrompt(np); }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.navy}`, background: COLORS.white, color: COLORS.navy, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Edit3 size={14} /> Editar prompt y regenerar</button>
                 <button onClick={async () => { const vp = (editingImage.prompt || imagePrompt) + ", alternative angle, different composition, slight variation"; setGeneratingImage(true); const result = await FreepikAPI.generateImage(freepikKey, vp, { engine: selectedEngine, aspect_ratio: selectedRatio }); if (result && !result.error && result.images) setGeneratedImages(prev => [...result.images, ...prev]); setGeneratingImage(false); }} disabled={generatingImage} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.olive}`, background: `${COLORS.olive}10`, color: COLORS.olive, fontWeight: 600, fontSize: 13, cursor: generatingImage ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><RefreshCw size={14} /> Generar variación</button>
-                <button onClick={() => { const canvas = document.createElement("canvas"); const im = new window.Image(); im.crossOrigin = "anonymous"; im.onload = () => { canvas.width = im.width; canvas.height = im.height; const ctx = canvas.getContext("2d"); ctx.filter = `brightness(${imageAdjustments.brightness}%) contrast(${imageAdjustments.contrast}%) saturate(${imageAdjustments.saturate}%)`; ctx.drawImage(im, 0, 0); setPostImage(canvas.toDataURL("image/jpeg", 0.95)); }; im.src = editingImage.src; }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.accent1})`, color: COLORS.white, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Check size={14} /> Usar en post (con ajustes)</button>
+                <button onClick={() => { const canvas = document.createElement("canvas"); const im = new window.Image(); im.crossOrigin = "anonymous"; im.onload = () => { canvas.width = im.width; canvas.height = im.height; const ctx = canvas.getContext("2d"); ctx.filter = `brightness(${imageAdjustments.brightness}%) contrast(${imageAdjustments.contrast}%) saturate(${imageAdjustments.saturate}%)`; ctx.drawImage(im, 0, 0); setPostImage(canvas.toDataURL("image/jpeg", 0.95)); }; im.src = editingImage.src; }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.accent1})`, color: COLORS.white, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><CheckCircle size={14} /> Usar en post (con ajustes)</button>
               </div>
             </SectionCard>
           )}
