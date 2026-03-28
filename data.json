@@ -120,8 +120,8 @@
     ]
   },
   "locations": [
-    { "name": "Española Way", "reviews": 2491, "rating": 4.2, "topDish": "Molcajete", "dailyMargaritas": 65, "sentiment": 87 },
-    { "name": "Ocean Drive", "reviews": 169, "rating": 4.8, "topDish": "Quesabirria", "dailyMargaritas": 45, "sentiment": 92 },
-    { "name": "Lincoln Road", "reviews": 485, "rating": 4.3, "topDish": "Guacamole", "dailyMargaritas": 40, "sentiment": 84 }
+    { "name": "Española Way", "reviews": 2491, "rating": 4.2, "topDish": "Molcajete", "photo": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=200&fit=crop", "dailyMargaritas": 65, "sentiment": 87 },
+    { "name": "Ocean Drive", "reviews": 169, "rating": 4.8, "topDish": "Quesabirria", "photo": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop", "dailyMargaritas": 45, "sentiment": 92 },
+    { "name": "Lincoln Road", "reviews": 485, "rating": 4.3, "topDish": "Guacamole", "photo": "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&h=200&fit=crop", "dailyMargaritas": 40, "sentiment": 84 }
   ]
 }
