@@ -2105,66 +2105,63 @@ function OhMexicoPlatform() {
               ))}
             </div>
 
-          {/* Visual Content Analysis */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
-            <SectionCard title="Nuestros Top Posts" icon={Heart}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {[
-                  { img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=200&h=200&fit=crop", type: "Reel", caption: "Molcajete prep behind the scenes", likes: "2.3K", good: "Behind-scenes content genera alto engagement", bad: "Audio podria mejorar, musica generica" },
-                  { img: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=200&h=200&fit=crop", type: "Carousel", caption: "Top 5 tacos you MUST try", likes: "1.8K", good: "Formato listicle funciona bien, buenas fotos", bad: "Demasiado texto en slides" },
-                  { img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop", type: "Reel", caption: "Margarita Monday vibes", likes: "3.1K", good: "Trending audio, excelente timing", bad: "Poca mencion de la marca" },
-                  { img: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?w=200&h=200&fit=crop", type: "Feed", caption: "New seasonal menu launch", likes: "956", good: "Fotografia profesional, colores vibrantes", bad: "Caption muy largo, pierde atencion" },
-                ].map(function(post, i) {
-                  return (
-                    <div key={i} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray }}>
-                      <img src={post.img} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                          <span style={{ background: COLORS.terracotta + "15", color: COLORS.terracotta, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{post.type}</span>
-                          <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.likes} likes</span>
-                        </div>
-                        <p style={{ margin: "0 0 6px", fontSize: 12, color: COLORS.darkGray }}>{post.caption}</p>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {/* Visual Post Analysis: Nuestros vs Competencia */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <SectionCard title="Nuestros Top Posts" icon={Heart}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[
+                    { img: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=200&h=200&fit=crop", type: "Reel", caption: "150+ tequilas. Best margaritas in Miami", likes: "1.2K", good: "Hook fuerte, buen trending audio", bad: "Caption necesita mas CTA" },
+                    { img: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=200&h=200&fit=crop", type: "Reel", caption: "POV: descubriste el mejor guacamole", likes: "956", good: "POV format trending, autenticidad", bad: "Mejorar iluminacion" },
+                    { img: "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=200&h=200&fit=crop", type: "Carousel", caption: "Nuestro Molcajete legendario", likes: "623", good: "Educativo, alto en saves", bad: "Fotos necesitan mejor styling" },
+                    { img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop", type: "Story", caption: "Happy Hour vibes 4-7PM", likes: "445", good: "Info de promo clara", bad: "Bajo engagement, necesita polls" },
+                  ].map(function(post, i) {
+                    return (
+                      <div key={i} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray }}>
+                        <img src={post.img} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                            <span style={{ background: COLORS.terracotta + "15", color: COLORS.terracotta, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{post.type}</span>
+                            <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.likes} likes</span>
+                          </div>
+                          <p style={{ margin: "0 0 6px", fontSize: 12, color: COLORS.darkGray }}>{post.caption}</p>
                           <div style={{ fontSize: 11, color: COLORS.positive }}>&#10003; {post.good}</div>
                           <div style={{ fontSize: 11, color: COLORS.negative }}>&#10007; {post.bad}</div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </SectionCard>
-            <SectionCard title="Posts de Competencia" icon={Eye}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {[
-                  { img: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?w=200&h=200&fit=crop", brand: "Naked Taco", type: "Reel", caption: "Collab with DJ Khaled", likes: "1.9K", good: "Influencer collab masivo, alta visibilidad", bad: "No replicable sin budget alto", insight: "Considerar micro-influencers locales" },
-                  { img: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=200&h=200&fit=crop", brand: "Lolo's Surf", type: "Reel", caption: "New breakfast burrito launch", likes: "234", good: "Buen product launch, close-up shots", bad: "Audio generico, sin hook claro", insight: "Su push de desayunos es oportunidad" },
-                  { img: "https://images.unsplash.com/photo-1535473895227-bdecb20fb157?w=200&h=200&fit=crop", brand: "La Cerveceria", type: "Reel", caption: "Happy hour 2x1 cerveza", likes: "567", good: "Promocion clara y directa", bad: "Visual poco original", insight: "Diferenciar con tequila/mezcal" },
-                  { img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&h=200&fit=crop", brand: "Naked Taco", type: "Feed", caption: "New cocktail menu reveal", likes: "445", good: "Estetica limpia, buena fotografia", bad: "Poco engagement en comentarios", insight: "Destacar variedad de 150+ tequilas" },
-                ].map(function(post, i) {
-                  return (
-                    <div key={i} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray }}>
-                      <img src={post.img} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.navy }}>{post.brand}</span>
-                          <span style={{ background: COLORS.mustard + "15", color: COLORS.mustard, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{post.type}</span>
-                          <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.likes} likes</span>
-                        </div>
-                        <p style={{ margin: "0 0 6px", fontSize: 12, color: COLORS.darkGray }}>{post.caption}</p>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+              <SectionCard title="Posts de Competencia" icon={Eye}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[
+                    { img: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?w=200&h=200&fit=crop", brand: "Naked Taco", type: "Reel", caption: "Collab con DJ Khaled", likes: "1.9K", good: "Influencer collab masivo", bad: "No replicable sin budget", insight: "Micro-influencers locales" },
+                    { img: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=200&h=200&fit=crop", brand: "Lolo's Surf", type: "Reel", caption: "New breakfast burrito", likes: "234", good: "Buen product launch", bad: "Audio generico", insight: "Oportunidad en desayunos" },
+                    { img: "https://images.unsplash.com/photo-1535473895227-bdecb20fb157?w=200&h=200&fit=crop", brand: "La Cerveceria", type: "Reel", caption: "Happy hour 2x1", likes: "567", good: "Promocion directa", bad: "Visual poco original", insight: "Diferenciar con tequila" },
+                    { img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&h=200&fit=crop", brand: "Naked Taco", type: "Feed", caption: "New cocktail menu", likes: "445", good: "Estetica limpia", bad: "Poco engagement", insight: "Destacar 150+ tequilas" },
+                  ].map(function(post, i) {
+                    return (
+                      <div key={i} style={{ display: "flex", gap: 12, padding: 12, borderRadius: 10, border: "1px solid " + COLORS.lightGray }}>
+                        <img src={post.img} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.navy }}>{post.brand}</span>
+                            <span style={{ background: COLORS.mustard + "15", color: COLORS.mustard, padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{post.type}</span>
+                            <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.likes}</span>
+                          </div>
+                          <p style={{ margin: "0 0 6px", fontSize: 12, color: COLORS.darkGray }}>{post.caption}</p>
                           <div style={{ fontSize: 11, color: COLORS.positive }}>&#10003; {post.good}</div>
                           <div style={{ fontSize: 11, color: COLORS.negative }}>&#10007; {post.bad}</div>
-                        </div>
-                        <div style={{ marginTop: 4, padding: "4px 8px", borderRadius: 6, background: COLORS.mustard + "12", border: "1px solid " + COLORS.mustard + "25" }}>
-                          <span style={{ fontSize: 11, color: COLORS.darkGray, fontStyle: "italic" }}>&#128161; {post.insight}</span>
+                          <div style={{ marginTop: 4, padding: "4px 8px", borderRadius: 6, background: COLORS.mustard + "12" }}>
+                            <span style={{ fontSize: 11, color: COLORS.darkGray, fontStyle: "italic" }}>&#128161; {post.insight}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </SectionCard>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+            </div>
           </div>
         )}
 
