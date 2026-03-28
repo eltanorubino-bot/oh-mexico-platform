@@ -51,7 +51,8 @@
       { "month": "Mar", "google": 4.4, "yelp": 3.5, "tripadvisor": 4.3, "opentable": 4.5 }
     ],
     "sentiment": [
-      { "category": "Comida", "positive": 82, "neutral": 12, "negative": 6 },
+      { "category": "Comida",
+      "photo": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=200&fit=crop", "positive": 82, "neutral": 12, "negative": 6 },
       { "category": "Servicio", "positive": 68, "neutral": 18, "negative": 14 },
       { "category": "Ambiente", "positive": 88, "neutral": 8, "negative": 4 },
       { "category": "Precio", "positive": 45, "neutral": 30, "negative": 25 },
@@ -59,8 +60,10 @@
       { "category": "Ubicación", "positive": 85, "neutral": 10, "negative": 5 }
     ],
     "keywords": [
-      { "word": "margaritas", "count": 342, "sentiment": "positive" },
-      { "word": "guacamole", "count": 289, "sentiment": "positive" },
+      { "word": "margaritas", "count": 342, "sentiment": "positive" ,
+      "photo": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=200&fit=crop"},
+      { "word": "guacamole", "count": 289, "sentiment": "positive" ,
+      "photo": "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&h=200&fit=crop"},
       { "word": "authentic", "count": 234, "sentiment": "positive" },
       { "word": "wait time", "count": 178, "sentiment": "negative" },
       { "word": "atmosphere", "count": 167, "sentiment": "positive" },
