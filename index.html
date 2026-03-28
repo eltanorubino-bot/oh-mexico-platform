@@ -271,16 +271,44 @@ const DEMO_POSTS = [
 ];
 
 const CALENDAR_ITEMS = [
-  { date: "2026-03-26", title: "Reel: Behind the scenes cocina", type: "Reel", status: "draft", pillar: "Autenticidad" },
-  { date: "2026-03-27", title: "Story: Viernes de margaritas", type: "Story", status: "approved", pillar: "Promociones" },
-  { date: "2026-03-28", title: "Carousel: Top 5 tacos", type: "Carousel", status: "draft", pillar: "Menú" },
-  { date: "2026-03-29", title: "Feed: Española Way vibes", type: "Feed", status: "scheduled", pillar: "Lifestyle" },
-  { date: "2026-03-30", title: "Reel: Molcajete prep ASMR", type: "Reel", status: "draft", pillar: "Menú" },
-  { date: "2026-03-31", title: "Story: Taco Tuesday reminder", type: "Story", status: "approved", pillar: "Promociones" },
-  { date: "2026-04-01", title: "Reel: Taco Tuesday compilation", type: "Reel", status: "idea", pillar: "Comunidad" },
-  { date: "2026-04-02", title: "Feed: Staff spotlight", type: "Feed", status: "idea", pillar: "Autenticidad" },
-  { date: "2026-04-03", title: "Carousel: 3 locaciones comparadas", type: "Carousel", status: "idea", pillar: "Locaciones" },
-  { date: "2026-04-04", title: "Reel: Cliente reacciona al Molcajete", type: "Reel", status: "idea", pillar: "Comunidad" },
+  { date: '2026-03-01', title: 'Feed: Bienvenido Marzo', type: 'Feed', status: 'published', pillar: 'Lifestyle', caption: 'Marzo llegó con todo el sabor. Nuevas experiencias, misma pasión mexicana.', hashtags: '#OhMexico #Marzo2026 #MiamiEats' },
+  { date: '2026-03-02', title: 'Story: Promo Lunes 2x1', type: 'Story', status: 'published', pillar: 'Promociones', caption: 'Lunes de 2x1 en margaritas. Porque los lunes también se celebran.', hashtags: '#MargaritaMonday #HappyHour' },
+  { date: '2026-03-03', title: 'Reel: Taco Tuesday energy', type: 'Reel', status: 'published', pillar: 'Menú', caption: 'It\'s TACO TUESDAY! $3 tacos from 4-7PM.', hashtags: '#TacoTuesday #MiamiFood' },
+  { date: '2026-03-04', title: 'Carousel: Historia del Molcajete', type: 'Carousel', status: 'published', pillar: 'Autenticidad', caption: 'El Molcajete: 8,000 años de tradición en tu mesa.', hashtags: '#Molcajete #MexicanCulture' },
+  { date: '2026-03-05', title: 'Feed: Ocean Drive sunset', type: 'Feed', status: 'published', pillar: 'Lifestyle', caption: 'Golden hour at Ocean Drive. Best views, best margaritas.', hashtags: '#OceanDrive #SouthBeach' },
+  { date: '2026-03-06', title: 'Story: Viernes de mezcal', type: 'Story', status: 'published', pillar: 'Promociones', caption: 'Viernes de mezcal artesanal. Prueba nuestra selección premium.', hashtags: '#Mezcal #FridayVibes' },
+  { date: '2026-03-07', title: 'Reel: Guacamole en vivo', type: 'Reel', status: 'published', pillar: 'Menú', caption: 'Fresh guac made tableside. The only way it should be done.', hashtags: '#Guacamole #FreshFood' },
+  { date: '2026-03-08', title: 'Feed: Día de la Mujer', type: 'Feed', status: 'published', pillar: 'Comunidad', caption: 'Celebrando a todas las mujeres que hacen Oh! Mexico posible.', hashtags: '#8M #WomensDay' },
+  { date: '2026-03-09', title: 'Story: Brunch dominical', type: 'Story', status: 'published', pillar: 'Lifestyle', caption: 'Sunday brunch con chilaquiles y mimosas. Reserva tu mesa.', hashtags: '#SundayBrunch #MiamiBrunch' },
+  { date: '2026-03-10', title: 'Reel: Taco Tuesday prep', type: 'Reel', status: 'published', pillar: 'Menú', caption: 'Getting ready for tomorrow\'s Taco Tuesday madness.', hashtags: '#TacoTuesday #BehindTheScenes' },
+  { date: '2026-03-11', title: 'Feed: Spring Break welcome', type: 'Feed', status: 'published', pillar: 'Promociones', caption: 'Spring Break is here! Special menu + extended happy hour.', hashtags: '#SpringBreak2026 #MiamiBeach' },
+  { date: '2026-03-12', title: 'Carousel: Top 5 margaritas', type: 'Carousel', status: 'published', pillar: 'Menú', caption: 'Our top 5 margaritas ranked. 150+ tequilas.', hashtags: '#Margaritas #Top5' },
+  { date: '2026-03-13', title: 'Story: Lincoln Road scene', type: 'Story', status: 'published', pillar: 'Lifestyle', caption: 'Friday night on Lincoln Road. Live music + tacos.', hashtags: '#LincolnRoad #FridayNight' },
+  { date: '2026-03-14', title: 'Reel: Quesabirria cheese pull', type: 'Reel', status: 'published', pillar: 'Menú', caption: 'That cheese pull though. Our Quesabirria is next level.', hashtags: '#Quesabirria #CheesePull' },
+  { date: '2026-03-15', title: 'Feed: Chef special dominical', type: 'Feed', status: 'published', pillar: 'Autenticidad', caption: 'Chef\'s Sunday special: Mole Negro Oaxaqueño.', hashtags: '#ChefSpecial #Mole' },
+  { date: '2026-03-16', title: 'Story: Happy Hour reminder', type: 'Story', status: 'published', pillar: 'Promociones', caption: 'Happy Hour Mon-Fri 4-7PM. $5 margs, $3 tacos.', hashtags: '#HappyHour #Deals' },
+  { date: '2026-03-17', title: 'Reel: St Patrick green marg', type: 'Reel', status: 'published', pillar: 'Promociones', caption: 'St. Patrick\'s Day meets Mexico. Green jalapeño margarita.', hashtags: '#StPatricksDay #Margarita' },
+  { date: '2026-03-18', title: 'Feed: Staff spotlight Doña María', type: 'Feed', status: 'published', pillar: 'Autenticidad', caption: 'Meet Doña María. 27 years making tortillas by hand.', hashtags: '#OurPeople #Authentic' },
+  { date: '2026-03-19', title: 'Carousel: Española Way guide', type: 'Carousel', status: 'published', pillar: 'Lifestyle', caption: 'Your complete guide to Española Way.', hashtags: '#EspañolaWay #Guide' },
+  { date: '2026-03-20', title: 'Story: Weekend plans', type: 'Story', status: 'published', pillar: 'Lifestyle', caption: 'Plans this weekend? Live music Friday + Saturday.', hashtags: '#WeekendVibes #LiveMusic' },
+  { date: '2026-03-21', title: 'Reel: Tequila flight ASMR', type: 'Reel', status: 'published', pillar: 'Menú', caption: 'ASMR: Pouring a tequila flight. 150+ options.', hashtags: '#Tequila #ASMR' },
+  { date: '2026-03-22', title: 'Feed: Review highlight', type: 'Feed', status: 'published', pillar: 'Comunidad', caption: '5 stars: Best Mexican food in Miami Beach.', hashtags: '#5Stars #CustomerLove' },
+  { date: '2026-03-23', title: 'Story: Lunes de pozole', type: 'Story', status: 'published', pillar: 'Menú', caption: 'Lunes de pozole rojo. Receta de abuela.', hashtags: '#Pozole #MondaySpecial' },
+  { date: '2026-03-24', title: 'Reel: Taco Tuesday legacy', type: 'Reel', status: 'published', pillar: 'Promociones', caption: '50,000+ margaritas sold yearly. It\'s tradition.', hashtags: '#TacoTuesday #Tradition' },
+  { date: '2026-03-25', title: 'Feed: Midweek motivation', type: 'Feed', status: 'published', pillar: 'Lifestyle', caption: 'Midweek energy: tacos, tequila, y buena vibra.', hashtags: '#MidweekMotivation #Tacos' },
+  { date: '2026-03-26', title: 'Reel: Behind the scenes cocina', type: 'Reel', status: 'draft', pillar: 'Autenticidad', caption: 'Peek inside our kitchen. Every dish made from scratch.', hashtags: '#BehindTheScenes #Kitchen' },
+  { date: '2026-03-27', title: 'Story: Viernes de margaritas', type: 'Story', status: 'approved', pillar: 'Promociones', caption: 'Viernes = Margaritas. New flavor: Mango-Habanero.', hashtags: '#FridayMargaritas #NewFlavor' },
+  { date: '2026-03-28', title: 'Carousel: Top 5 tacos', type: 'Carousel', status: 'draft', pillar: 'Menú', caption: 'Our Top 5 tacos ranked by YOU. #1 will surprise you.', hashtags: '#Top5 #TacoRanking' },
+  { date: '2026-03-29', title: 'Feed: Española Way vibes', type: 'Feed', status: 'scheduled', pillar: 'Lifestyle', caption: 'Sunday strolls on Española Way. Stop by for brunch.', hashtags: '#EspañolaWay #SundayVibes' },
+  { date: '2026-03-30', title: 'Reel: Molcajete prep ASMR', type: 'Reel', status: 'draft', pillar: 'Menú', caption: 'Volcanic stone, fresh ingredients, pure Mexican magic.', hashtags: '#Molcajete #ASMR' },
+  { date: '2026-03-31', title: 'Story: Taco Tuesday reminder', type: 'Story', status: 'approved', pillar: 'Promociones', caption: 'Tomorrow is Taco Tuesday! Set your reminders.', hashtags: '#TacoTuesday #Reminder' },
+  { date: '2026-04-01', title: 'Reel: Taco Tuesday compilation', type: 'Reel', status: 'idea', pillar: 'Comunidad', caption: 'April Fools? The only joke is not coming to Taco Tuesday.', hashtags: '#AprilFools #TacoTuesday' },
+  { date: '2026-04-02', title: 'Feed: Staff spotlight', type: 'Feed', status: 'idea', pillar: 'Autenticidad', caption: 'Meet Carlos, our head bartender. 15 years crafting margaritas.', hashtags: '#OurPeople #Bartender' },
+  { date: '2026-04-03', title: 'Carousel: 3 locaciones comparadas', type: 'Carousel', status: 'idea', pillar: 'Lifestyle', caption: '3 locations, 1 unforgettable experience.', hashtags: '#3Locations #Compare' },
+  { date: '2026-04-04', title: 'Reel: Cliente reacciona al Molcajete', type: 'Reel', status: 'idea', pillar: 'Comunidad', caption: 'First-time Molcajete reactions never get old.', hashtags: '#Reactions #Molcajete' },
+  { date: '2026-04-05', title: 'Feed: Domingo familiar', type: 'Feed', status: 'idea', pillar: 'Comunidad', caption: 'Sundays are for family. Kids eat free.', hashtags: '#FamilySunday #KidsEatFree' },
+  { date: '2026-04-06', title: 'Story: Lunes motivacional', type: 'Story', status: 'idea', pillar: 'Lifestyle', caption: 'New week, new flavors. What are you trying?', hashtags: '#MondayMotivation #NewWeek' },
+  { date: '2026-04-07', title: 'Reel: Taco Tuesday hype', type: 'Reel', status: 'idea', pillar: 'Promociones', caption: 'Taco Tuesday incoming. This week: Birria Tacos special.', hashtags: '#TacoTuesday #Birria' },
 ];
 
 const COMPETITORS = [
@@ -1772,7 +1800,9 @@ function OhMexicoPlatform() {
   const [followerData] = useState(generateDemoFollowers);
   const [engagementData] = useState(generateDemoEngagement);
   const [reachData] = useState(generateDemoReach);
-  const [calendarWeek, setCalendarWeek] = useState(0);
+  const [calendarMonth, setCalendarMonth] = useState(2);
+  const [calendarYear, setCalendarYear] = useState(2026);
+  const [selectedCalDay, setSelectedCalDay] = useState(null);
 
   const tabs = [
     { id: "overview", label: "Overview", icon: BarChart3 },
@@ -1789,7 +1819,17 @@ function OhMexicoPlatform() {
   const avgEngRate = ((totalEngagement / DEMO_POSTS.reduce((s, p) => s + p.reach, 0)) * 100).toFixed(1);
   const totalReach = DEMO_POSTS.reduce((s, p) => s + p.reach, 0);
   const bestPost = DEMO_POSTS.reduce((a, b) => (a.reach > b.reach ? a : b));
-  const calItems = CALENDAR_ITEMS.slice(calendarWeek * 7, calendarWeek * 7 + 7);
+  const MONTH_NAMES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+  const calMonthName = MONTH_NAMES[calendarMonth];
+  const calFirstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+  const calDaysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const calStartOffset = calFirstDay === 0 ? 6 : calFirstDay - 1;
+  const calMonthStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}`;
+  const calItemsByDate = {};
+  CALENDAR_ITEMS.forEach(item => { if (item.date.startsWith(calMonthStr)) { const d = parseInt(item.date.slice(8)); if (!calItemsByDate[d]) calItemsByDate[d] = []; calItemsByDate[d].push(item); } });
+  const calPrevMonth = () => { if (calendarMonth === 0) { setCalendarMonth(11); setCalendarYear(calendarYear - 1); } else { setCalendarMonth(calendarMonth - 1); } setSelectedCalDay(null); };
+  const calNextMonth = () => { if (calendarMonth === 11) { setCalendarMonth(0); setCalendarYear(calendarYear + 1); } else { setCalendarMonth(calendarMonth + 1); } setSelectedCalDay(null); };
+  const selectedDayItems = selectedCalDay ? (calItemsByDate[selectedCalDay] || []) : [];
 
   return (
     <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", background: "#F9FAFB", minHeight: "100vh", color: COLORS.darkGray }}>
@@ -1970,9 +2010,9 @@ function OhMexicoPlatform() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Calendario Editorial</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <button onClick={() => setCalendarWeek(Math.max(0, calendarWeek - 1))} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronLeft size={18} /></button>
-                <span style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{calendarWeek === 0 ? "Semana Actual" : `Semana +${calendarWeek}`}</span>
-                <button onClick={() => setCalendarWeek(Math.min(1, calendarWeek + 1))} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronRight size={18} /></button>
+                <button onClick={calPrevMonth} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronLeft size={18} /></button>
+                <span style={{ fontSize: 16, fontWeight: 700, color: COLORS.navy, minWidth: 160, textAlign: "center" }}>{calMonthName} {calendarYear}</span>
+                <button onClick={calNextMonth} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronRight size={18} /></button>
               </div>
             </div>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -1980,19 +2020,72 @@ function OhMexicoPlatform() {
                 <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: 3, background: s.color }} /><span style={{ fontSize: 12, color: "#6B7280" }}>{s.label}</span></div>
               ))}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
               {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) => (
-                <div key={d} style={{ textAlign: "center", fontSize: 12, fontWeight: 600, color: "#9CA3AF", padding: "0 0 8px" }}>{d}</div>
+                <div key={d} style={{ textAlign: "center", fontSize: 12, fontWeight: 600, color: "#9CA3AF", padding: "8px 0" }}>{d}</div>
               ))}
-              {calItems.map((item, i) => <CalendarDay key={i} item={item} />)}
+              {Array.from({ length: calStartOffset }).map((_, i) => (
+                <div key={`empty-${i}`} style={{ minHeight: 80, background: "#F3F4F6", borderRadius: 8 }} />
+              ))}
+              {Array.from({ length: calDaysInMonth }).map((_, i) => {
+                const day = i + 1;
+                const dayItems = calItemsByDate[day] || [];
+                const isToday = calendarYear === 2026 && calendarMonth === 2 && day === 28;
+                const isSelected = selectedCalDay === day;
+                const sc = { draft: "#FCD34D", approved: "#86EFAC", scheduled: "#93C5FD", idea: "#D1D5DB", published: "#A78BFA" };
+                return (
+                  <div key={day} onClick={() => setSelectedCalDay(isSelected ? null : day)}
+                    style={{ minHeight: 80, background: isSelected ? `${COLORS.navy}08` : COLORS.white, borderRadius: 8, padding: "6px 8px", border: isSelected ? `2px solid ${COLORS.terracotta}` : isToday ? `2px solid ${COLORS.navy}` : `1px solid ${COLORS.lightGray}`, cursor: "pointer", display: "flex", flexDirection: "column", gap: 3, transition: "all 0.15s" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 13, fontWeight: isToday ? 800 : 600, color: isToday ? COLORS.terracotta : COLORS.navy }}>{day}</span>
+                      {dayItems.length > 0 && <span style={{ fontSize: 10, color: "#9CA3AF" }}>{dayItems.length}</span>}
+                    </div>
+                    {dayItems.slice(0, 2).map((item, idx) => (
+                      <div key={idx} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: 2, background: sc[item.status], flexShrink: 0 }} />
+                        <span style={{ fontSize: 10, color: COLORS.darkGray, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title.length > 20 ? item.title.slice(0, 20) + "..." : item.title}</span>
+                      </div>
+                    ))}
+                    {dayItems.length > 2 && <span style={{ fontSize: 9, color: "#9CA3AF" }}>+{dayItems.length - 2} más</span>}
+                  </div>
+                );
+              })}
             </div>
+            {selectedCalDay && (
+              <SectionCard title={`${selectedCalDay} de ${calMonthName} ${calendarYear}`} style={{ border: `2px solid ${COLORS.terracotta}30`, background: `${COLORS.terracotta}04` }}>
+                {selectedDayItems.length === 0 ? (
+                  <p style={{ color: "#9CA3AF", fontSize: 14, textAlign: "center", padding: 20 }}>No hay contenido programado para este día.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    {selectedDayItems.map((item, idx) => {
+                      const sc2 = { draft: "#FCD34D", approved: "#86EFAC", scheduled: "#93C5FD", idea: "#D1D5DB", published: "#A78BFA" };
+                      const sl2 = { draft: "Borrador", approved: "Aprobado", scheduled: "Programado", idea: "Idea", published: "Publicado" };
+                      return (
+                        <div key={idx} style={{ background: COLORS.white, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.lightGray}` }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ background: sc2[item.status], padding: "3px 10px", borderRadius: 10, fontSize: 11, fontWeight: 600 }}>{sl2[item.status]}</span>
+                              <span style={{ background: `${COLORS.navy}10`, padding: "3px 10px", borderRadius: 10, fontSize: 11, fontWeight: 600, color: COLORS.navy }}>{item.type}</span>
+                              <span style={{ background: `${COLORS.terracotta}15`, padding: "3px 10px", borderRadius: 10, fontSize: 11, fontWeight: 600, color: COLORS.terracotta }}>{item.pillar}</span>
+                            </div>
+                          </div>
+                          <h4 style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 700, color: COLORS.navy }}>{item.title}</h4>
+                          {item.caption && <p style={{ margin: "0 0 8px", fontSize: 13, color: COLORS.darkGray, lineHeight: 1.5 }}>{item.caption}</p>}
+                          {item.hashtags && <p style={{ margin: 0, fontSize: 12, color: COLORS.terracotta, fontWeight: 500 }}>{item.hashtags}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </SectionCard>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
               {[
-                { label: "Ideas", count: CALENDAR_ITEMS.filter(c => c.status === "idea").length, color: "#D1D5DB" },
-                { label: "Borradores", count: CALENDAR_ITEMS.filter(c => c.status === "draft").length, color: "#FCD34D" },
-                { label: "Aprobados", count: CALENDAR_ITEMS.filter(c => c.status === "approved").length, color: "#86EFAC" },
-                { label: "Programados", count: CALENDAR_ITEMS.filter(c => c.status === "scheduled").length, color: "#93C5FD" },
-                { label: "Publicados", count: CALENDAR_ITEMS.filter(c => c.status === "published").length, color: "#A78BFA" },
+                { label: "Ideas", count: CALENDAR_ITEMS.filter(c => c.date.startsWith(calMonthStr) && c.status === "idea").length, color: "#D1D5DB" },
+                { label: "Borradores", count: CALENDAR_ITEMS.filter(c => c.date.startsWith(calMonthStr) && c.status === "draft").length, color: "#FCD34D" },
+                { label: "Aprobados", count: CALENDAR_ITEMS.filter(c => c.date.startsWith(calMonthStr) && c.status === "approved").length, color: "#86EFAC" },
+                { label: "Programados", count: CALENDAR_ITEMS.filter(c => c.date.startsWith(calMonthStr) && c.status === "scheduled").length, color: "#93C5FD" },
+                { label: "Publicados", count: CALENDAR_ITEMS.filter(c => c.date.startsWith(calMonthStr) && c.status === "published").length, color: "#A78BFA" },
               ].map((s) => (
                 <div key={s.label} style={{ background: COLORS.white, borderRadius: 12, padding: 16, textAlign: "center", borderTop: `3px solid ${s.color}`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.navy }}>{s.count}</div>
@@ -2050,7 +2143,7 @@ function OhMexicoPlatform() {
       {/* ─── FOOTER ─── */}
       <div style={{ padding: "20px 32px", textAlign: "center", borderTop: `1px solid ${COLORS.lightGray}`, marginTop: 40 }}>
         <p style={{ margin: 0, fontSize: 12, color: "#9CA3AF" }}>
-          Oh! Mexico Platform • Brand Management Suite • Built by La Productora • Mar 2026
+          Oh! Mexico Platform • Brand Management Suite • Built by Paradise.la • Mar 2026
         </p>
       </div>
 
