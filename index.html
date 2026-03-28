@@ -101,6 +101,7 @@ const Sparkles = createIcon(["M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5
 const Layers = createIcon(["M12 2L2 7l10 5 10-5-10-5z", "M2 17l10 5 10-5", "M2 12l10 5 10-5"]);
 const LayoutTemplate = createIcon(["M21 3H3v18h18V3z", "M3 9h18", "M9 21V9"]);
 const Copy = createIcon(["M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z", "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"]);
+const Check = createIcon(["M20 6L9 17l-5-5"]);
 const CheckCircle = createIcon(["M22 11.08V12a10 10 0 1 1-5.93-9.14", "M22 4L12 14.01l-3-3"]);
 const XCircle = createIcon(["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", "M15 9l-6 6", "M9 9l6 6"]);
 const TrendingDown = createIcon(["M23 18l-9.5-9.5-5 5L1 6"]);
@@ -1245,7 +1246,6 @@ function PostCreatorTab() {
               {/* Image area */}
               <div style={{
                 width: "100%", aspectRatio: postType === "story" || postType === "reel" ? "9/16" : postType === "feed" ? "1/1" : "4/5",
-                maxHeight: 320,
                 background: postImage ? "transparent" : `linear-gradient(135deg, ${COLORS.terracotta}30, ${COLORS.mustard}20)`,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 overflow: "hidden",
