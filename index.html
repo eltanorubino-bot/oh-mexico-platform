@@ -1400,6 +1400,7 @@ function MediaLibraryTab() {
   const [uploadForm, setUploadForm] = useState({ name: "", category: "platos", location: "Española Way", tags: "" });
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadPreview, setUploadPreview] = useState(null);
+  const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef(null);
   const handleFileSelect = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -1430,7 +1431,8 @@ function MediaLibraryTab() {
   });
 
   const handleUpload = () => {
-    if (!uploadForm.name) return;
+    if (!uploadForm.name) { setUploadError("Ingresa un nombre para la foto"); return; }
+    setUploadError("");
     const newItem = {
       id: Date.now(),
       name: uploadForm.name,
@@ -1449,6 +1451,7 @@ function MediaLibraryTab() {
     setShowUpload(false);
     setUploadFile(null);
     setUploadPreview(null);
+    setUploadError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -1536,9 +1539,10 @@ function MediaLibraryTab() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Nombre</label>
-                <input type="text" value={uploadForm.name} onChange={(e) => setUploadForm(p => ({ ...p, name: e.target.value }))}
+                <input type="text" value={uploadForm.name} onChange={(e) => { setUploadForm(p => ({ ...p, name: e.target.value })); setUploadError(""); }}
                   placeholder="Ej: Molcajete Hero Shot"
-                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${uploadError ? "#EF4444" : COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+                {uploadError && <p style={{ margin: "4px 0 0", fontSize: 12, color: "#EF4444" }}>{uploadError}</p>}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <div>
