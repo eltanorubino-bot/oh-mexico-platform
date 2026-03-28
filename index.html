@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oh! Mexico — Brand Management Suite</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇲🇽</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.2/Recharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.344.0/umd/lucide.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #F9FAFB; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #C4622D40; border-radius: 3px; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+const {
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, RadarChart,
+  Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+} = Recharts;
+
+// Lucide icons wrapper
+const createIcon = (paths, opts = {}) => {
+  return function LucideIcon({ size = 24, color = "currentColor", style = {}, ...props }) {
+    return React.createElement("svg", {
+      width: size, height: size, viewBox: "0 0 24 24",
+      fill: opts.fill || "none", stroke: color, strokeWidth: 2,
+      strokeLinecap: "round", strokeLinejoin: "round",
+      style: { ...style, minWidth: size, minHeight: size }, ...props
+    }, ...paths.map((d, i) => React.createElement("path", { key: i, d })));
+  };
+};
+const createCircleIcon = (paths) => {
+  return function LucideIcon({ size = 24, color = "currentColor", style = {}, fill: propFill, ...props }) {
+    return React.createElement("svg", {
+      width: size, height: size, viewBox: "0 0 24 24",
+      fill: "none", stroke: color, strokeWidth: 2,
+      strokeLinecap: "round", strokeLinejoin: "round",
+      style: { ...style, minWidth: size, minHeight: size }, ...props
+    }, ...paths.map((el, i) => {
+      if (el.type === "circle") return React.createElement("circle", { key: i, ...el });
+      if (el.type === "polygon") return React.createElement("polygon", { key: i, points: el.points });
+      if (el.type === "polyline") return React.createElement("polyline", { key: i, points: el.points });
+      if (el.type === "line") return React.createElement("line", { key: i, ...el });
+      if (el.type === "rect") return React.createElement("rect", { key: i, ...el });
+      return React.createElement("path", { key: i, d: el.d || el });
+    }));
+  };
+};
+
+// Define all needed icons
+const Camera = createIcon(["M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z", "M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"]);
+const TrendingUp = createIcon(["M23 6l-9.5 9.5-5-5L1 18"]);
+const Users = createIcon(["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2", "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", "M23 21v-2a4 4 0 0 0-3-3.87", "M16 3.13a4 4 0 0 1 0 7.75"]);
+const Eye = createIcon(["M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"]);
+const Heart = createIcon(["M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"]);
+const MessageCircle = createIcon(["M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"]);
+const Share2 = createIcon(["M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M8.59 13.51l6.83 3.98", "M15.41 6.51l-6.82 3.98"]);
+const Calendar = createIcon(["M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z", "M16 2v4", "M8 2v4", "M3 10h18"]);
+const Grid3X3 = createIcon(["M3 3h18v18H3z", "M3 9h18", "M3 15h18", "M9 3v18", "M15 3v18"]);
+const BarChart3 = createIcon(["M18 20V10", "M12 20V4", "M6 20v-6"]);
+const Award = createIcon(["M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14z", "M8.21 13.89L7 23l5-3 5 3-1.21-9.12"]);
+const MapPin = createIcon(["M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z", "M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"]);
+const Clock = createIcon(["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", "M12 6v6l4 2"]);
+const ArrowUp = createIcon(["M12 19V5", "M5 12l7-7 7 7"]);
+const ArrowDown = createIcon(["M12 5v14", "M19 12l-7 7-7-7"]);
+const ChevronLeft = createIcon(["M15 18l-6-6 6-6"]);
+const ChevronRight = createIcon(["M9 18l6-6-6-6"]);
+const Settings = createIcon(["M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"]);
+const RefreshCw = createIcon(["M23 4v6h-6", "M1 20v-6h6", "M3.51 9a9 9 0 0 1 14.85-3.36L23 10", "M20.49 15a9 9 0 0 1-14.85 3.36L1 14"]);
+const Zap = createIcon(["M13 2L3 14h9l-1 8 10-12h-9l1-8z"]);
+const Target = createIcon(["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", "M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z", "M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"]);
+const Star = createIcon(["M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"]);
+const ExternalLink = createIcon(["M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", "M15 3h6v6", "M10 14L21 3"]);
+const Filter = createIcon(["M22 3H2l8 9.46V19l4 2v-8.54L22 3z"]);
+const Shield = createIcon(["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"]);
+const AlertTriangle = createIcon(["M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z", "M12 9v4", "M12 17h.01"]);
+const ThumbsUp = createIcon(["M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z", "M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"]);
+const ThumbsDown = createIcon(["M10 15V19a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z", "M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"]);
+const Bell = createIcon(["M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9", "M13.73 21a2 2 0 0 1-3.46 0"]);
+const Download = createIcon(["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M7 10l5 5 5-5", "M12 15V3"]);
+const Palette = createIcon(["M12 2a10 10 0 0 0-1 19.95C15 22 22 17 22 12A10 10 0 0 0 12 2z"]);
+const Image = createIcon(["M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z", "M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z", "M21 15l-5-5L5 21"]);
+const Wand2 = createIcon(["M15 4V2", "M15 16v-2", "M8 9h2", "M20 9h2", "M17.8 11.8L19 13", "M15 9h0", "M17.8 6.2L19 5", "M11 3.2L12.2 5", "M3 21l9-9"]);
+const Send = createIcon(["M22 2L11 13", "M22 2l-7 20-4-9-9-4 20-7z"]);
+const FileText = createIcon(["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z", "M14 2v6h6", "M16 13H8", "M16 17H8", "M10 9H8"]);
+const Globe = createIcon(["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", "M2 12h20", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"]);
+const Search = createIcon(["M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z", "M21 21l-4.35-4.35"]);
+const PenTool = createIcon(["M12 19l7-7 3 3-7 7-3-3z", "M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z", "M2 2l7.586 7.586", "M11 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"]);
+const Sparkles = createIcon(["M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z", "M5 17l.75 2.25L8 20l-2.25.75L5 23l-.75-2.25L2 20l2.25-.75L5 17z", "M18 14l.75 2.25L21 17l-2.25.75L18 20l-.75-2.25L15 17l2.25-.75L18 14z"]);
+const Layers = createIcon(["M12 2L2 7l10 5 10-5-10-5z", "M2 17l10 5 10-5", "M2 12l10 5 10-5"]);
+const LayoutTemplate = createIcon(["M21 3H3v18h18V3z", "M3 9h18", "M9 21V9"]);
+const Copy = createIcon(["M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z", "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"]);
+const CheckCircle = createIcon(["M22 11.08V12a10 10 0 1 1-5.93-9.14", "M22 4L12 14.01l-3-3"]);
+const XCircle = createIcon(["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", "M15 9l-6 6", "M9 9l6 6"]);
+const TrendingDown = createIcon(["M23 18l-9.5-9.5-5 5L1 6"]);
+const MessageSquare = createIcon(["M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"]);
+const Activity = createIcon(["M22 12h-4l-3 9L9 3l-3 9H2"]);
+const Newspaper = createIcon(["M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2z", "M2 10a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2", "M10 6h6", "M10 10h6", "M10 14h2"]);
+const Hash = createIcon(["M4 9h16", "M4 15h16", "M10 3L8 21", "M16 3l-2 18"]);
+const Play = createIcon(["M5 3l14 9-14 9V3z"]);
+const Bookmark = createIcon(["M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"]);
+const Database = createIcon(["M12 8c4.97 0 9-1.34 9-3s-4.03-3-9-3-9 1.34-9 3 4.03 3 9 3z", "M21 12c0 1.66-4.03 3-9 3s-9-1.34-9-3", "M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"]);
+const Upload = createIcon(["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M17 8l-5-5-5 5", "M12 3v12"]);
+const FolderOpen = createIcon(["M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"]);
+const Tag = createIcon(["M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z", "M7 7h.01"]);
+const Trash2 = createIcon(["M3 6h18", "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", "M10 11v6", "M14 11v6"]);
+const ZoomIn = createIcon(["M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z", "M21 21l-4.35-4.35", "M11 8v6", "M8 11h6"]);
+const MoreHorizontal = createIcon(["M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z", "M19 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z", "M5 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"]);
+const Plus = createIcon(["M12 5v14", "M5 12h14"]);
+const X = createIcon(["M18 6L6 18", "M6 6l12 12"]);
+
+
+// ─── BRAND COLORS ───
+const COLORS = {
+  navy: "#1B2A4A", terracotta: "#C4622D", olive: "#6B7D3A", mustard: "#D4A030",
+  cream: "#FFF8F0", white: "#FFFFFF", lightGray: "#F3F4F6", darkGray: "#374151",
+  accent1: "#E8845C", accent2: "#8BA44A", google: "#4285F4", yelp: "#D32323",
+  tripadvisor: "#34E0A1", opentable: "#DA3743", positive: "#16a34a", negative: "#dc2626",
+  warning: "#f59e0b", info: "#3b82f6",
+};
+
+// ─── PLATFORM URLS for Oh Mexico ───
+const PLATFORM_LINKS = {
+  google: {
+    "Española Way": "https://www.google.com/maps/place/Oh!+Mexico",
+    "Ocean Drive": "https://www.google.com/maps/place/Oh!+Mexico+Taco+Shop",
+    "Lincoln Road": "https://www.google.com/maps/place/Oh!+Mexico+Lincoln+Road",
+  },
+  yelp: {
+    "Española Way": "https://www.yelp.com/biz/oh-mexico-miami-beach",
+    "Ocean Drive": "https://www.yelp.com/biz/oh-mexico-taco-shop-miami-beach",
+    "Lincoln Road": "https://www.yelp.com/biz/oh-mexico-lincoln-road-miami-beach",
+  },
+  tripadvisor: {
+    "Española Way": "https://www.tripadvisor.com/Restaurant_Review-Oh_Mexico",
+    "Ocean Drive": "https://www.tripadvisor.com/Restaurant_Review-Oh_Mexico_Taco_Shop",
+    "Lincoln Road": "https://www.tripadvisor.com/Restaurant_Review-Oh_Mexico_Lincoln",
+  },
+  opentable: {
+    "Española Way": "https://www.opentable.com/oh-mexico",
+    "Lincoln Road": "https://www.opentable.com/oh-mexico-lincoln-road",
+  },
+};
+
+// ─── REPUTATION DATA ───
+const REPUTATION_PLATFORMS = [
+  {
+    name: "Google", icon: "G", color: COLORS.google, bg: "#4285F415",
+    locations: [
+      { loc: "Española Way", rating: 4.3, reviews: 1847, trend: "+0.1", newReviews: 23, responseRate: 78 },
+      { loc: "Ocean Drive", rating: 4.5, reviews: 312, trend: "+0.2", newReviews: 8, responseRate: 65 },
+      { loc: "Lincoln Road", rating: 4.1, reviews: 624, trend: "-0.1", newReviews: 15, responseRate: 72 },
+    ],
+  },
+  {
+    name: "Yelp", icon: "Y", color: COLORS.yelp, bg: "#D3232315",
+    locations: [
+      { loc: "Española Way", rating: 3.5, reviews: 1077, trend: "0.0", newReviews: 12, responseRate: 45 },
+      { loc: "Ocean Drive", rating: 4.0, reviews: 43, trend: "+0.5", newReviews: 3, responseRate: 60 },
+      { loc: "Lincoln Road", rating: 3.5, reviews: 485, trend: "+0.1", newReviews: 9, responseRate: 40 },
+    ],
+  },
+  {
+    name: "TripAdvisor", icon: "TA", color: COLORS.tripadvisor, bg: "#34E0A115",
+    locations: [
+      { loc: "Española Way", rating: 4.2, reviews: 2491, trend: "0.0", newReviews: 31, responseRate: 55 },
+      { loc: "Ocean Drive", rating: 4.8, reviews: 169, trend: "+0.1", newReviews: 5, responseRate: 70 },
+      { loc: "Lincoln Road", rating: 4.0, reviews: 287, trend: "+0.2", newReviews: 11, responseRate: 48 },
+    ],
+  },
+  {
+    name: "OpenTable", icon: "OT", color: COLORS.opentable, bg: "#DA374315",
+    locations: [
+      { loc: "Española Way", rating: 4.5, reviews: 357, trend: "+0.1", newReviews: 14, responseRate: 82 },
+      { loc: "Lincoln Road", rating: 4.3, reviews: 157, trend: "0.0", newReviews: 6, responseRate: 75 },
+    ],
+  },
+];
+
+const REVIEW_SENTIMENT_DATA = [
+  { category: "Comida", positive: 82, neutral: 12, negative: 6 },
+  { category: "Servicio", positive: 68, neutral: 18, negative: 14 },
+  { category: "Ambiente", positive: 88, neutral: 8, negative: 4 },
+  { category: "Precio", positive: 45, neutral: 30, negative: 25 },
+  { category: "Bebidas", positive: 91, neutral: 6, negative: 3 },
+  { category: "Ubicación", positive: 85, neutral: 10, negative: 5 },
+];
+
+const REVIEW_KEYWORDS = [
+  { word: "margaritas", count: 342, sentiment: "positive" },
+  { word: "guacamole", count: 289, sentiment: "positive" },
+  { word: "authentic", count: 234, sentiment: "positive" },
+  { word: "wait time", count: 178, sentiment: "negative" },
+  { word: "atmosphere", count: 167, sentiment: "positive" },
+  { word: "tacos", count: 156, sentiment: "positive" },
+  { word: "pricey", count: 145, sentiment: "negative" },
+  { word: "tequila", count: 134, sentiment: "positive" },
+  { word: "molcajete", count: 123, sentiment: "positive" },
+  { word: "portion size", count: 98, sentiment: "negative" },
+  { word: "live music", count: 87, sentiment: "positive" },
+  { word: "chips & salsa", count: 76, sentiment: "negative" },
+];
+
+const RECENT_REVIEWS = [
+  { platform: "Google", loc: "Española Way", rating: 5, text: "Best margaritas in South Beach! The molcajete was incredible...", date: "2026-03-26", replied: true, author: "Sarah M." },
+  { platform: "Yelp", loc: "Lincoln Road", rating: 3, text: "Food was good but waited 40 minutes for a table. No chips with salsa...", date: "2026-03-25", replied: false, author: "Mike R." },
+  { platform: "TripAdvisor", loc: "Ocean Drive", rating: 5, text: "Amazing taco shop! The quesabirria tacos are to die for...", date: "2026-03-25", replied: true, author: "Tourist_UK" },
+  { platform: "Google", loc: "Española Way", rating: 2, text: "Very overpriced for what you get. Small portions of rice and beans...", date: "2026-03-24", replied: false, author: "John D." },
+  { platform: "OpenTable", loc: "Española Way", rating: 4, text: "Great dinner spot. The tequila selection is unmatched. Service was a bit slow...", date: "2026-03-24", replied: true, author: "Diner_423" },
+  { platform: "TripAdvisor", loc: "Lincoln Road", rating: 4, text: "Really enjoyed the happy hour specials. Good vibes and great food...", date: "2026-03-23", replied: false, author: "FoodLover22" },
+];
+
+const RATING_TREND_DATA = [
+  { month: "Oct", google: 4.2, yelp: 3.4, tripadvisor: 4.1, opentable: 4.4 },
+  { month: "Nov", google: 4.2, yelp: 3.4, tripadvisor: 4.2, opentable: 4.4 },
+  { month: "Dic", google: 4.3, yelp: 3.5, tripadvisor: 4.2, opentable: 4.5 },
+  { month: "Ene", google: 4.3, yelp: 3.5, tripadvisor: 4.2, opentable: 4.5 },
+  { month: "Feb", google: 4.3, yelp: 3.5, tripadvisor: 4.3, opentable: 4.5 },
+  { month: "Mar", google: 4.4, yelp: 3.5, tripadvisor: 4.3, opentable: 4.5 },
+];
+
+// ─── DEMO DATA (Instagram) ───
+const generateDemoFollowers = () => {
+  const months = ["Oct", "Nov", "Dic", "Ene", "Feb", "Mar"];
+  let base = 18200;
+  return months.map((m) => {
+    base += Math.floor(Math.random() * 600 + 200);
+    return { month: m, followers: base, gained: Math.floor(Math.random() * 400 + 150), lost: Math.floor(Math.random() * 80 + 20) };
+  });
+};
+
+const generateDemoEngagement = () => {
+  const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  return days.map((d) => ({
+    day: d,
+    likes: Math.floor(Math.random() * 300 + 150),
+    comments: Math.floor(Math.random() * 45 + 10),
+    shares: Math.floor(Math.random() * 30 + 5),
+    saves: Math.floor(Math.random() * 60 + 15),
+  }));
+};
+
+const generateDemoReach = () => {
+  const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
+  return weeks.map((w) => ({
+    week: w,
+    reach: Math.floor(Math.random() * 15000 + 25000),
+    impressions: Math.floor(Math.random() * 25000 + 40000),
+    profileVisits: Math.floor(Math.random() * 2000 + 3000),
+  }));
+};
+
+const DEMO_POSTS = [
+  { id: 1, type: "Reel", caption: "Taco Tuesday hits different at Oh Mexico!", likes: 847, comments: 62, shares: 34, saves: 89, reach: 12400, date: "2026-03-24", status: "published", image: "🎬" },
+  { id: 2, type: "Carousel", caption: "Our legendary Molcajete — served in a volcanic stone bowl", likes: 623, comments: 41, shares: 28, saves: 112, reach: 9800, date: "2026-03-22", status: "published", image: "📸" },
+  { id: 3, type: "Story", caption: "Happy Hour vibes 4-7PM Mon-Fri", likes: 445, comments: 18, shares: 15, saves: 34, reach: 8200, date: "2026-03-21", status: "published", image: "📱" },
+  { id: 4, type: "Reel", caption: "150+ tequilas. Best margaritas in Miami", likes: 1203, comments: 89, shares: 67, saves: 145, reach: 18600, date: "2026-03-19", status: "published", image: "🎬" },
+  { id: 5, type: "Feed", caption: "Española Way since 1997. 25+ years of sabor", likes: 534, comments: 35, shares: 22, saves: 78, reach: 7600, date: "2026-03-17", status: "published", image: "📸" },
+  { id: 6, type: "Reel", caption: "POV: descubriste el mejor guacamole de South Beach", likes: 956, comments: 73, shares: 51, saves: 134, reach: 15200, date: "2026-03-15", status: "published", image: "🎬" },
+];
+
+const CALENDAR_ITEMS = [
+  { date: "2026-03-26", title: "Reel: Behind the scenes cocina", type: "Reel", status: "draft", pillar: "Autenticidad" },
+  { date: "2026-03-27", title: "Story: Viernes de margaritas", type: "Story", status: "approved", pillar: "Promociones" },
+  { date: "2026-03-28", title: "Carousel: Top 5 tacos", type: "Carousel", status: "draft", pillar: "Menú" },
+  { date: "2026-03-29", title: "Feed: Española Way vibes", type: "Feed", status: "scheduled", pillar: "Lifestyle" },
+  { date: "2026-03-30", title: "Reel: Molcajete prep ASMR", type: "Reel", status: "draft", pillar: "Menú" },
+  { date: "2026-03-31", title: "Story: Taco Tuesday reminder", type: "Story", status: "approved", pillar: "Promociones" },
+  { date: "2026-04-01", title: "Reel: Taco Tuesday compilation", type: "Reel", status: "idea", pillar: "Comunidad" },
+  { date: "2026-04-02", title: "Feed: Staff spotlight", type: "Feed", status: "idea", pillar: "Autenticidad" },
+  { date: "2026-04-03", title: "Carousel: 3 locaciones comparadas", type: "Carousel", status: "idea", pillar: "Locaciones" },
+  { date: "2026-04-04", title: "Reel: Cliente reacciona al Molcajete", type: "Reel", status: "idea", pillar: "Comunidad" },
+];
+
+const COMPETITORS = [
+  { name: "Lolo's Surf Cantina", handle: "@lolossurfcantina", followers: "8.2K", engagement: "2.1%", strength: "Beach vibes, breakfast crowd", weakness: "Menos variedad de menú", googleRating: 4.1, yelpRating: 3.5 },
+  { name: "Naked Taco", handle: "@nakedtaco", followers: "12.5K", engagement: "1.8%", strength: "Hotel guests, modern brand", weakness: "Solo una locación", googleRating: 4.0, yelpRating: 3.0 },
+  { name: "La Cervecería de Barrio", handle: "@lacerveceriadebarrio", followers: "45K", engagement: "1.5%", strength: "Gran alcance, mismo grupo", weakness: "Diferente mercado", googleRating: 4.2, yelpRating: 3.8 },
+];
+
+const CONTENT_PILLARS = [
+  { name: "Menú", percentage: 35, color: COLORS.terracotta, posts: 12 },
+  { name: "Lifestyle", percentage: 25, color: COLORS.mustard, posts: 8 },
+  { name: "Promociones", percentage: 20, color: COLORS.olive, posts: 7 },
+  { name: "Comunidad", percentage: 12, color: COLORS.accent1, posts: 4 },
+  { name: "Autenticidad", percentage: 8, color: COLORS.navy, posts: 3 },
+];
+
+const LOCATIONS_DATA = [
+  { name: "Española Way", reviews: 2491, rating: 4.2, topDish: "Molcajete", dailyMargaritas: 65, sentiment: 87 },
+  { name: "Ocean Drive", reviews: 169, rating: 4.8, topDish: "Quesabirria", dailyMargaritas: 45, sentiment: 92 },
+  { name: "Lincoln Road", reviews: 485, rating: 4.3, topDish: "Guacamole", dailyMargaritas: 40, sentiment: 84 },
+];
+
+// ─── TRENDS & INTELLIGENCE DATA ───
+const TRENDING_TOPICS = [
+  { topic: "#TacoTuesday", volume: "2.4M posts/week", relevance: 95, trend: "up", category: "Recurring" },
+  { topic: "#MiamiEats", volume: "180K posts/week", relevance: 92, trend: "up", category: "Local" },
+  { topic: "#MexicanFood", volume: "1.8M posts/week", relevance: 88, trend: "stable", category: "Cuisine" },
+  { topic: "#SouthBeach", volume: "340K posts/week", relevance: 85, trend: "up", category: "Local" },
+  { topic: "#Margarita", volume: "520K posts/week", relevance: 82, trend: "up", category: "Drinks" },
+  { topic: "#FoodPorn", volume: "4.1M posts/week", relevance: 78, trend: "stable", category: "General" },
+  { topic: "#SpringBreak2026", volume: "890K posts/week", relevance: 90, trend: "up", category: "Seasonal" },
+  { topic: "#BrunchMiami", volume: "45K posts/week", relevance: 72, trend: "up", category: "Local" },
+];
+
+const COMPETITOR_DAILY_ACTIVITY = [
+  { date: "Mar 26", ohMexico: 3, lolos: 1, nakedTaco: 2, cerveceria: 4 },
+  { date: "Mar 25", ohMexico: 2, lolos: 2, nakedTaco: 1, cerveceria: 3 },
+  { date: "Mar 24", ohMexico: 4, lolos: 1, nakedTaco: 2, cerveceria: 2 },
+  { date: "Mar 23", ohMexico: 2, lolos: 0, nakedTaco: 3, cerveceria: 5 },
+  { date: "Mar 22", ohMexico: 3, lolos: 2, nakedTaco: 1, cerveceria: 3 },
+  { date: "Mar 21", ohMexico: 1, lolos: 1, nakedTaco: 2, cerveceria: 4 },
+  { date: "Mar 20", ohMexico: 3, lolos: 1, nakedTaco: 1, cerveceria: 2 },
+];
+
+const COMP_RECENT_POSTS = [
+  { competitor: "Lolo's Surf Cantina", type: "Reel", content: "New breakfast burrito launch", likes: 234, date: "Mar 26", insight: "Están empujando desayunos — oportunidad de diferenciación" },
+  { competitor: "Naked Taco", type: "Carousel", content: "Collab with DJ Khaled", likes: 1890, date: "Mar 25", insight: "Influencer collab exitosa — considerar estrategia similar" },
+  { competitor: "La Cervecería", type: "Reel", content: "Happy hour 2x1 cerveza artesanal", likes: 567, date: "Mar 26", insight: "Compiten en happy hour — diferenciar con tequila/mezcal" },
+  { competitor: "Lolo's Surf Cantina", type: "Story", content: "Spring Break specials menu", likes: 89, date: "Mar 24", insight: "Aprovechando Spring Break — nosotros también deberíamos" },
+  { competitor: "Naked Taco", type: "Feed", content: "New cocktail menu reveal", likes: 445, date: "Mar 23", insight: "Nuevo menú de cocktails — highlight nuestra variedad de 150+ tequilas" },
+];
+
+const INDUSTRY_INSIGHTS = [
+  { title: "Video corto domina Q1 2026", desc: "Reels y TikToks de comida con <15 seg tienen 3x más engagement que posts estáticos.", icon: Play, type: "trend" },
+  { title: "UGC supera branded content", desc: "Contenido generado por usuarios tiene 28% más conversión que branded en restaurantes.", icon: Users, type: "insight" },
+  { title: "Spring Break Miami 2026", desc: "Tráfico turístico esperado +15% vs 2025. Pico de búsquedas 'Mexican food Miami Beach'.", icon: TrendingUp, type: "opportunity" },
+  { title: "Instagram Reels > Stories", desc: "Algorithm update: Reels ahora tienen 2.5x más distribución orgánica que Stories.", icon: Sparkles, type: "platform" },
+];
+
+// ─── FREEPIK API MODULE ───
+const FreepikAPI = {
+  baseUrl: "https://api.freepik.com/v1",
+
+  async generateImage(apiKey, prompt, options = {}) {
+    try {
+      const res = await fetch(`${this.baseUrl}/ai/mystic`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-freepik-api-key": apiKey },
+        body: JSON.stringify({
+          prompt,
+          resolution: options.resolution || "1024x1024",
+          aspect_ratio: options.aspect_ratio || "square_1_1",
+          engine: options.engine || "sharpy",
+          filter_nsfw: true,
+          ...options,
+        }),
+      });
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      console.warn("Freepik API error:", e.message);
+      return { error: e.message };
+    }
+  },
+
+  async checkTask(apiKey, taskId) {
+    try {
+      const res = await fetch(`${this.baseUrl}/ai/mystic/${taskId}`, {
+        headers: { "x-freepik-api-key": apiKey },
+      });
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      return { error: e.message };
+    }
+  },
+
+  async searchResources(apiKey, query, type = "photo") {
+    try {
+      const res = await fetch(`${this.baseUrl}/resources?query=${encodeURIComponent(query)}&type=${type}&limit=20`, {
+        headers: { "x-freepik-api-key": apiKey },
+      });
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      return { error: e.message };
+    }
+  },
+};
+
+// ─── INSTAGRAM API MODULE ───
+const InstagramAPI = {
+  baseUrl: "https://graph.instagram.com",
+  async fetchMetrics(accessToken, userId) {
+    try {
+      const fields = "followers_count,media_count,profile_views";
+      const res = await fetch(`${this.baseUrl}/${userId}?fields=${fields}&access_token=${accessToken}`);
+      if (!res.ok) throw new Error("API Error");
+      return await res.json();
+    } catch (e) { return null; }
+  },
+};
+
+// ─── SHARED COMPONENTS ───
+function MetricCard({ icon: Icon, label, value, change, changeType, color }) {
+  const isPositive = changeType === "up";
+  return (
+    <div style={{ background: COLORS.white, borderRadius: 16, padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", border: `1px solid ${COLORS.lightGray}`, display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ background: `${color}15`, borderRadius: 10, padding: 8, display: "flex" }}>
+          <Icon size={20} color={color} />
+        </div>
+        {change && (
+          <div style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 13, fontWeight: 600, color: isPositive ? COLORS.positive : COLORS.negative }}>
+            {isPositive ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+            {change}
+          </div>
+        )}
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.navy, letterSpacing: -1 }}>{value}</div>
+      <div style={{ fontSize: 13, color: "#6B7280", fontWeight: 500 }}>{label}</div>
+    </div>
+  );
+}
+
+function SectionCard({ children, title, subtitle, action, style = {} }) {
+  return (
+    <div style={{ background: COLORS.white, borderRadius: 16, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", border: `1px solid ${COLORS.lightGray}`, ...style }}>
+      {(title || action) && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div>
+            {title && <h3 style={{ margin: 0, fontSize: 16, color: COLORS.navy }}>{title}</h3>}
+            {subtitle && <p style={{ margin: "2px 0 0", fontSize: 12, color: "#9CA3AF" }}>{subtitle}</p>}
+          </div>
+          {action}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function Badge({ text, color, bg }) {
+  return (
+    <span style={{ background: bg || `${color}18`, color: color, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+      {text}
+    </span>
+  );
+}
+
+function PostRow({ post }) {
+  const engRate = (((post.likes + post.comments + post.shares + post.saves) / post.reach) * 100).toFixed(1);
+  const typeColors = { Reel: COLORS.terracotta, Carousel: COLORS.mustard, Story: COLORS.olive, Feed: COLORS.navy };
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "auto 1fr repeat(5, 70px) 70px", gap: 12, alignItems: "center", padding: "12px 0", borderBottom: `1px solid ${COLORS.lightGray}`, fontSize: 14 }}>
+      <Badge text={post.type} color={typeColors[post.type]} />
+      <span style={{ color: COLORS.darkGray, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.caption.slice(0, 50)}...</span>
+      <span style={{ textAlign: "center", color: COLORS.darkGray }}>{post.likes.toLocaleString()}</span>
+      <span style={{ textAlign: "center", color: COLORS.darkGray }}>{post.comments}</span>
+      <span style={{ textAlign: "center", color: COLORS.darkGray }}>{post.shares}</span>
+      <span style={{ textAlign: "center", color: COLORS.darkGray }}>{post.saves}</span>
+      <span style={{ textAlign: "center", fontWeight: 600, color: parseFloat(engRate) > 5 ? COLORS.positive : COLORS.terracotta }}>{engRate}%</span>
+      <span style={{ textAlign: "center", fontSize: 12, color: "#9CA3AF" }}>{post.date.slice(5)}</span>
+    </div>
+  );
+}
+
+function CalendarDay({ item }) {
+  const statusColors = { draft: "#FCD34D", approved: "#86EFAC", scheduled: "#93C5FD", idea: "#D1D5DB", published: "#A78BFA" };
+  const statusLabels = { draft: "Borrador", approved: "Aprobado", scheduled: "Programado", idea: "Idea", published: "Publicado" };
+  return (
+    <div style={{ background: COLORS.white, borderRadius: 10, padding: 12, border: `1px solid ${COLORS.lightGray}`, minHeight: 80, display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.navy }}>{item.date.slice(8)}</span>
+        <span style={{ background: statusColors[item.status], padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{statusLabels[item.status]}</span>
+      </div>
+      <span style={{ fontSize: 12, color: COLORS.darkGray, lineHeight: 1.3 }}>{item.title}</span>
+      <span style={{ fontSize: 10, color: COLORS.terracotta, fontWeight: 600 }}>{item.pillar}</span>
+    </div>
+  );
+}
+
+// ─── REPUTATION TAB ───
+function ReputationTab() {
+  const [selectedPlatform, setSelectedPlatform] = useState(null);
+  const [reviewFilter, setReviewFilter] = useState("all");
+
+  const totalReviews = REPUTATION_PLATFORMS.reduce((sum, p) => sum + p.locations.reduce((s, l) => s + l.reviews, 0), 0);
+  const avgRating = (REPUTATION_PLATFORMS.reduce((sum, p) => sum + p.locations.reduce((s, l) => s + l.rating * l.reviews, 0), 0) / totalReviews).toFixed(1);
+  const newThisWeek = REPUTATION_PLATFORMS.reduce((sum, p) => sum + p.locations.reduce((s, l) => s + l.newReviews, 0), 0);
+  const unreplied = RECENT_REVIEWS.filter(r => !r.replied).length;
+
+  const filteredReviews = reviewFilter === "all" ? RECENT_REVIEWS :
+    reviewFilter === "unreplied" ? RECENT_REVIEWS.filter(r => !r.replied) :
+    RECENT_REVIEWS.filter(r => r.platform.toLowerCase().replace(" ", "") === reviewFilter);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* KPI Row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <MetricCard icon={Star} label="Rating Promedio" value={avgRating} change="+0.1" changeType="up" color={COLORS.mustard} />
+        <MetricCard icon={MessageSquare} label="Total Reviews" value={totalReviews.toLocaleString()} change={`+${newThisWeek} esta semana`} changeType="up" color={COLORS.navy} />
+        <MetricCard icon={ThumbsUp} label="Response Rate" value="62%" change="+5%" changeType="up" color={COLORS.olive} />
+        <MetricCard icon={AlertTriangle} label="Sin Responder" value={unreplied.toString()} change="Requiere atención" changeType="down" color={COLORS.negative} />
+      </div>
+
+      {/* Platform Cards — clickable links */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        {REPUTATION_PLATFORMS.map((platform) => {
+          const avgR = (platform.locations.reduce((s, l) => s + l.rating, 0) / platform.locations.length).toFixed(1);
+          const totalR = platform.locations.reduce((s, l) => s + l.reviews, 0);
+          const isSelected = selectedPlatform === platform.name;
+          return (
+            <div key={platform.name}
+              onClick={() => setSelectedPlatform(isSelected ? null : platform.name)}
+              style={{
+                background: COLORS.white, borderRadius: 16, padding: 24, cursor: "pointer",
+                boxShadow: isSelected ? `0 0 0 2px ${platform.color}` : "0 1px 3px rgba(0,0,0,0.06)",
+                border: `1px solid ${isSelected ? platform.color : COLORS.lightGray}`,
+                transition: "all 0.2s",
+              }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ background: platform.bg, width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16, color: platform.color }}>
+                  {platform.icon}
+                </div>
+                <ExternalLink size={16} color="#9CA3AF" />
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.navy, marginBottom: 2 }}>{platform.name}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 28, fontWeight: 800, color: platform.color }}>{avgR}</span>
+                <span style={{ fontSize: 13, color: "#9CA3AF" }}>/ 5.0</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#6B7280" }}>
+                <span>{totalR.toLocaleString()} reviews</span>
+                <span style={{ color: COLORS.positive, fontWeight: 600 }}>+{platform.locations.reduce((s,l) => s + l.newReviews, 0)} new</span>
+              </div>
+              {/* Location breakdown on click */}
+              {isSelected && (
+                <div style={{ marginTop: 16, borderTop: `1px solid ${COLORS.lightGray}`, paddingTop: 12 }}>
+                  {platform.locations.map((loc) => (
+                    <a key={loc.loc}
+                      href={PLATFORM_LINKS[platform.name.toLowerCase().replace(" ", "")]?.[loc.loc] || "#"}
+                      target="_blank" rel="noreferrer"
+                      style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", textDecoration: "none", borderBottom: `1px solid ${COLORS.lightGray}` }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy }}>{loc.loc}</div>
+                        <div style={{ fontSize: 11, color: "#9CA3AF" }}>{loc.reviews} reviews • Response: {loc.responseRate}%</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: platform.color }}>{loc.rating}</span>
+                        <span style={{ fontSize: 11, color: parseFloat(loc.trend) >= 0 ? COLORS.positive : COLORS.negative }}>
+                          {parseFloat(loc.trend) >= 0 ? "▲" : "▼"} {loc.trend}
+                        </span>
+                        <ExternalLink size={12} color="#9CA3AF" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Rating Trends + Sentiment */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <SectionCard title="Tendencia de Ratings" subtitle="Últimos 6 meses por plataforma">
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={RATING_TREND_DATA}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+              <YAxis domain={[3, 5]} tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="google" stroke={COLORS.google} strokeWidth={2.5} dot={{ r: 4 }} name="Google" />
+              <Line type="monotone" dataKey="yelp" stroke={COLORS.yelp} strokeWidth={2.5} dot={{ r: 4 }} name="Yelp" />
+              <Line type="monotone" dataKey="tripadvisor" stroke={COLORS.tripadvisor} strokeWidth={2.5} dot={{ r: 4 }} name="TripAdvisor" />
+              <Line type="monotone" dataKey="opentable" stroke={COLORS.opentable} strokeWidth={2.5} dot={{ r: 4 }} name="OpenTable" />
+            </LineChart>
+          </ResponsiveContainer>
+        </SectionCard>
+
+        <SectionCard title="Sentiment por Categoría" subtitle="Análisis de reviews agregado">
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {REVIEW_SENTIMENT_DATA.map((cat) => (
+              <div key={cat.category}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy }}>{cat.category}</span>
+                  <span style={{ fontSize: 12, color: COLORS.positive }}>{cat.positive}% positivo</span>
+                </div>
+                <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{ width: `${cat.positive}%`, background: COLORS.positive }} />
+                  <div style={{ width: `${cat.neutral}%`, background: COLORS.warning }} />
+                  <div style={{ width: `${cat.negative}%`, background: COLORS.negative }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      </div>
+
+      {/* Review Keywords Cloud */}
+      <SectionCard title="Keywords Más Mencionados" subtitle="Extraído de reviews de todas las plataformas">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          {REVIEW_KEYWORDS.map((kw) => (
+            <div key={kw.word} style={{
+              padding: "8px 16px", borderRadius: 24,
+              background: kw.sentiment === "positive" ? `${COLORS.positive}12` : `${COLORS.negative}12`,
+              border: `1px solid ${kw.sentiment === "positive" ? COLORS.positive : COLORS.negative}30`,
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <span style={{ fontSize: Math.min(16, 11 + kw.count / 50), fontWeight: 600, color: kw.sentiment === "positive" ? COLORS.positive : COLORS.negative }}>
+                {kw.word}
+              </span>
+              <span style={{ fontSize: 11, color: "#9CA3AF" }}>({kw.count})</span>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
+      {/* Recent Reviews Feed */}
+      <SectionCard title="Reviews Recientes" subtitle="Feed en tiempo real"
+        action={
+          <div style={{ display: "flex", gap: 6 }}>
+            {["all", "unreplied", "google", "yelp", "tripadvisor", "opentable"].map((f) => (
+              <button key={f} onClick={() => setReviewFilter(f)}
+                style={{
+                  padding: "5px 12px", borderRadius: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
+                  background: reviewFilter === f ? COLORS.navy : COLORS.lightGray,
+                  color: reviewFilter === f ? COLORS.white : COLORS.darkGray,
+                  border: "none",
+                }}>
+                {f === "all" ? "Todos" : f === "unreplied" ? "Sin responder" : f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </div>
+        }>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {filteredReviews.map((review, i) => {
+            const platColors = { Google: COLORS.google, Yelp: COLORS.yelp, TripAdvisor: COLORS.tripadvisor, OpenTable: COLORS.opentable };
+            return (
+              <div key={i} style={{ padding: 16, borderRadius: 12, border: `1px solid ${COLORS.lightGray}`, background: review.replied ? COLORS.white : "#FEF3C7" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Badge text={review.platform} color={platColors[review.platform]} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy }}>{review.author}</span>
+                    <span style={{ fontSize: 12, color: "#9CA3AF" }}>— {review.loc}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 2 }}>
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} size={14} fill={s <= review.rating ? COLORS.mustard : "none"} color={s <= review.rating ? COLORS.mustard : "#D1D5DB"} />
+                      ))}
+                    </div>
+                    {review.replied ? (
+                      <Badge text="Respondido" color={COLORS.positive} />
+                    ) : (
+                      <Badge text="Pendiente" color={COLORS.negative} />
+                    )}
+                  </div>
+                </div>
+                <p style={{ margin: 0, fontSize: 14, color: COLORS.darkGray, lineHeight: 1.5 }}>{review.text}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+                  <span style={{ fontSize: 12, color: "#9CA3AF" }}>{review.date}</span>
+                  {!review.replied && (
+                    <button style={{ padding: "5px 14px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                      Responder
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
+      {/* Reputation Score Summary */}
+      <div style={{ background: `linear-gradient(135deg, ${COLORS.navy}, #2D3F6A)`, borderRadius: 16, padding: 28, color: COLORS.white }}>
+        <h3 style={{ margin: "0 0 16px", fontSize: 18 }}>Reputation Health Score</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16, textAlign: "center" }}>
+          {[
+            { label: "Rating Global", value: avgRating, max: "5.0", pct: (avgRating / 5 * 100) },
+            { label: "Response Rate", value: "62%", max: "100%", pct: 62 },
+            { label: "Sentiment", value: "81%", max: "100%", pct: 81 },
+            { label: "Review Volume", value: "137/mo", max: "Top 10%", pct: 78 },
+            { label: "Health Score", value: "B+", max: "A+", pct: 82 },
+          ].map((m) => (
+            <div key={m.label}>
+              <div style={{ fontSize: 28, fontWeight: 800 }}>{m.value}</div>
+              <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 8 }}>{m.label}</div>
+              <div style={{ height: 4, background: "rgba(255,255,255,0.2)", borderRadius: 2 }}>
+                <div style={{ height: "100%", width: `${m.pct}%`, background: COLORS.mustard, borderRadius: 2 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── INTELLIGENCE TAB ───
+function IntelligenceTab() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Inteligencia & Trends</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9CA3AF" }}>Reporte diario de competencia, tendencias y oportunidades</p>
+        </div>
+        <button style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+          <Download size={16} /> Exportar Reporte PDF
+        </button>
+      </div>
+
+      {/* Industry Insights */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        {INDUSTRY_INSIGHTS.map((insight, i) => {
+          const typeColors = { trend: COLORS.terracotta, insight: COLORS.navy, opportunity: COLORS.positive, platform: COLORS.info };
+          const typeLabels = { trend: "Tendencia", insight: "Insight", opportunity: "Oportunidad", platform: "Plataforma" };
+          const Icon = insight.icon;
+          return (
+            <SectionCard key={i}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ background: `${typeColors[insight.type]}15`, borderRadius: 10, padding: 8, display: "flex" }}>
+                  <Icon size={18} color={typeColors[insight.type]} />
+                </div>
+                <Badge text={typeLabels[insight.type]} color={typeColors[insight.type]} />
+              </div>
+              <h4 style={{ margin: "0 0 6px", fontSize: 14, color: COLORS.navy }}>{insight.title}</h4>
+              <p style={{ margin: 0, fontSize: 13, color: "#6B7280", lineHeight: 1.5 }}>{insight.desc}</p>
+            </SectionCard>
+          );
+        })}
+      </div>
+
+      {/* Trending Topics */}
+      <SectionCard title="Hashtags & Topics Trending" subtitle="Relevancia para Oh Mexico esta semana">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+          {TRENDING_TOPICS.map((topic) => (
+            <div key={topic.topic} style={{ padding: 16, borderRadius: 12, border: `1px solid ${COLORS.lightGray}`, background: topic.relevance > 85 ? `${COLORS.positive}06` : COLORS.white }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: COLORS.navy }}>{topic.topic}</span>
+                {topic.trend === "up" && <ArrowUp size={14} color={COLORS.positive} />}
+              </div>
+              <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>{topic.volume}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ height: 4, flex: 1, background: COLORS.lightGray, borderRadius: 2, marginRight: 8 }}>
+                  <div style={{ height: "100%", width: `${topic.relevance}%`, background: topic.relevance > 85 ? COLORS.positive : COLORS.mustard, borderRadius: 2 }} />
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 600, color: topic.relevance > 85 ? COLORS.positive : COLORS.mustard }}>{topic.relevance}%</span>
+              </div>
+              <Badge text={topic.category} color={COLORS.navy} />
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
+      {/* Competitor Activity Chart + Feed */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <SectionCard title="Actividad Diaria de Competencia" subtitle="Posts por día — últimos 7 días">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={COMPETITOR_DAILY_ACTIVITY}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Bar dataKey="ohMexico" fill={COLORS.terracotta} name="Oh Mexico" radius={[2,2,0,0]} />
+              <Bar dataKey="lolos" fill={COLORS.mustard} name="Lolo's" radius={[2,2,0,0]} />
+              <Bar dataKey="nakedTaco" fill={COLORS.olive} name="Naked Taco" radius={[2,2,0,0]} />
+              <Bar dataKey="cerveceria" fill={COLORS.navy} name="Cervecería" radius={[2,2,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </SectionCard>
+
+        <SectionCard title="Feed de Competencia" subtitle="Posts recientes + insights estratégicos">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: 280, overflowY: "auto" }}>
+            {COMP_RECENT_POSTS.map((post, i) => (
+              <div key={i} style={{ padding: 14, borderRadius: 10, border: `1px solid ${COLORS.lightGray}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.navy }}>{post.competitor}</span>
+                    <Badge text={post.type} color={COLORS.terracotta} />
+                  </div>
+                  <span style={{ fontSize: 11, color: "#9CA3AF" }}>{post.date}</span>
+                </div>
+                <p style={{ margin: "0 0 6px", fontSize: 13, color: COLORS.darkGray }}>{post.content}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 12, color: "#9CA3AF" }}>{post.likes.toLocaleString()} likes</span>
+                </div>
+                <div style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, background: `${COLORS.mustard}12`, border: `1px solid ${COLORS.mustard}25` }}>
+                  <p style={{ margin: 0, fontSize: 12, color: COLORS.darkGray, fontStyle: "italic" }}>
+                    💡 {post.insight}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      </div>
+
+      {/* Competitor Comparison */}
+      <SectionCard title="Competencia — Análisis Comparativo">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+          {[{ name: "Oh! Mexico", handle: "@ohmexico", followers: "20.1K", engagement: `${((DEMO_POSTS.reduce((s, p) => s + p.likes + p.comments + p.shares + p.saves, 0) / DEMO_POSTS.reduce((s, p) => s + p.reach, 0)) * 100).toFixed(1)}%`, googleRating: 4.3, yelpRating: 3.5, isUs: true }, ...COMPETITORS].map((comp) => (
+            <div key={comp.name} style={{
+              padding: 20, borderRadius: 14, textAlign: "center",
+              background: comp.isUs ? `linear-gradient(135deg, ${COLORS.terracotta}10, ${COLORS.mustard}10)` : COLORS.white,
+              border: comp.isUs ? `2px solid ${COLORS.terracotta}40` : `1px solid ${COLORS.lightGray}`,
+            }}>
+              {comp.isUs && <Badge text="NOSOTROS" color={COLORS.terracotta} />}
+              <h4 style={{ margin: "8px 0 2px", fontSize: 15, color: COLORS.navy }}>{comp.name}</h4>
+              <p style={{ margin: "0 0 12px", fontSize: 12, color: COLORS.terracotta }}>{comp.handle}</p>
+              <div style={{ fontSize: 24, fontWeight: 800, color: COLORS.navy }}>{comp.followers}</div>
+              <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 8 }}>Followers</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.olive }}>{comp.engagement}</div>
+              <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 8 }}>Engagement</div>
+              <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.google }}>{comp.googleRating}</div>
+                  <div style={{ fontSize: 10, color: "#9CA3AF" }}>Google</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.yelp }}>{comp.yelpRating}</div>
+                  <div style={{ fontSize: 10, color: "#9CA3AF" }}>Yelp</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+// ─── POST CREATOR TAB (Freepik Integration) ───
+function PostCreatorTab() {
+  const [freepikKey, setFreepikKey] = useState("FPSXf62e3dc95df686f556dc053c41690bdb");
+  const [freepikConnected, setFreepikConnected] = useState(true);
+  const [postType, setPostType] = useState("feed");
+  const [caption, setCaption] = useState("");
+  const [hashtags, setHashtags] = useState("#OhMexico #MiamiEats #SouthBeach #MexicanFood");
+  const [selectedPillar, setSelectedPillar] = useState("Menú");
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState([]);
+  const [selectedEngine, setSelectedEngine] = useState("sharpy");
+  const [selectedRatio, setSelectedRatio] = useState("square_1_1");
+  const [showTemplates, setShowTemplates] = useState(true);
+
+  const POST_TEMPLATES = [
+    { name: "Taco Tuesday", pillar: "Promociones", caption: "It's TACO TUESDAY! All tacos $3 from 4-7PM. Which one are you getting?", hashtags: "#TacoTuesday #OhMexico #MiamiDeals #TacoLovers", imagePrompt: "Vibrant overhead shot of 6 different Mexican tacos arranged in a circle on a rustic wooden board, colorful salsas, lime wedges, festive lighting, restaurant atmosphere, food photography" },
+    { name: "Margarita Feature", pillar: "Menú", caption: "150+ tequilas. 50,000+ margaritas sold yearly. Award-winning for a reason.", hashtags: "#Margarita #BestMargaritas #MiamiDrinks #TequilaLovers #OhMexico", imagePrompt: "Stunning close-up of a vibrant margarita cocktail with salt rim, lime garnish, splash effect, Mexican restaurant bar background with warm lighting, professional cocktail photography" },
+    { name: "Behind the Scenes", pillar: "Autenticidad", caption: "Desde 1997, cada plato se prepara con amor. Peek inside our kitchen.", hashtags: "#BehindTheScenes #MexicanCooking #AuthenticMexican #ChefLife #OhMexico", imagePrompt: "Candid kitchen shot of chef preparing molcajete in authentic Mexican restaurant kitchen, steam rising, vibrant ingredients, warm lighting, documentary style" },
+    { name: "Location Showcase", pillar: "Lifestyle", caption: "3 locations. 1 unforgettable experience. Española Way, Ocean Drive, Lincoln Road.", hashtags: "#SouthBeach #MiamiBeach #OhMexico #EspanolaWay #OceanDrive #LincolnRoad", imagePrompt: "Beautiful exterior shot of a Mexican restaurant on a vibrant Miami Beach street at golden hour, palm trees, neon lights, festive atmosphere, travel photography" },
+    { name: "Molcajete Hero", pillar: "Menú", caption: "Served in a volcanic stone bowl, our Molcajete is a feast for all senses.", hashtags: "#Molcajete #MexicanFood #FoodPorn #MiamiFoodie #OhMexico", imagePrompt: "Dramatic close-up of a sizzling molcajete dish in volcanic stone bowl, steam rising, grilled meats, cactus, cheese, peppers, dark moody food photography with warm accents" },
+    { name: "Happy Hour", pillar: "Promociones", caption: "Mexican Fiesta Happy Hour Mon-Fri 4-7PM. The perfect start to your evening.", hashtags: "#HappyHour #MiamiHappyHour #Cocktails #OhMexico #AfterWork", imagePrompt: "Festive happy hour scene at a Mexican restaurant bar, colorful cocktails lined up, chips and guacamole, warm sunset light through windows, social atmosphere" },
+  ];
+
+  const handleGenerateImage = async () => {
+    if (!freepikKey || !imagePrompt) return;
+    setGeneratingImage(true);
+    const result = await FreepikAPI.generateImage(freepikKey, imagePrompt, {
+      engine: selectedEngine,
+      aspect_ratio: selectedRatio,
+    });
+    if (result && !result.error) {
+      setGeneratedImages(prev => [result, ...prev]);
+    }
+    setGeneratingImage(false);
+  };
+
+  const applyTemplate = (template) => {
+    setCaption(template.caption);
+    setHashtags(template.hashtags);
+    setImagePrompt(template.imagePrompt);
+    setSelectedPillar(template.pillar);
+    setShowTemplates(false);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Crear Post</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9CA3AF" }}>Diseña y genera contenido con Freepik AI</p>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 20, background: freepikConnected ? "#16a34a22" : "#dc262622", border: `1px solid ${freepikConnected ? "#16a34a" : "#dc2626"}44` }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: freepikConnected ? "#16a34a" : "#dc2626" }} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: freepikConnected ? "#16a34a" : "#dc2626" }}>
+              {freepikConnected ? "Freepik Connected" : "Freepik Disconnected"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Freepik API Config */}
+      {!freepikConnected && (
+        <SectionCard title="Conectar Freepik API" style={{ background: `${COLORS.info}06`, border: `1px solid ${COLORS.info}25` }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <input
+              type="text" placeholder="Freepik API Key (x-freepik-api-key)" value={freepikKey}
+              onChange={(e) => setFreepikKey(e.target.value)}
+              style={{ flex: 1, padding: "10px 14px", borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none" }}
+            />
+            <button onClick={() => { if (freepikKey.length > 5) setFreepikConnected(true); }}
+              style={{ padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+              Conectar
+            </button>
+          </div>
+          <p style={{ margin: "8px 0 0", fontSize: 12, color: "#9CA3AF" }}>
+            Obtén tu API key en <a href="https://www.freepik.com/developers/dashboard" target="_blank" rel="noreferrer" style={{ color: COLORS.terracotta }}>freepik.com/developers</a>
+          </p>
+        </SectionCard>
+      )}
+
+      {/* Quick Templates */}
+      {showTemplates && (
+        <SectionCard title="Templates Rápidos" subtitle="Selecciona uno para empezar rápido"
+          action={<button onClick={() => setShowTemplates(false)} style={{ fontSize: 12, color: "#9CA3AF", background: "none", border: "none", cursor: "pointer" }}>Empezar desde cero</button>}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+            {POST_TEMPLATES.map((tmpl) => (
+              <div key={tmpl.name} onClick={() => applyTemplate(tmpl)}
+                style={{ padding: 16, borderRadius: 12, border: `1px solid ${COLORS.lightGray}`, cursor: "pointer", transition: "all 0.2s" }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = COLORS.terracotta}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = COLORS.lightGray}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <h4 style={{ margin: 0, fontSize: 14, color: COLORS.navy }}>{tmpl.name}</h4>
+                  <Badge text={tmpl.pillar} color={COLORS.terracotta} />
+                </div>
+                <p style={{ margin: 0, fontSize: 12, color: "#6B7280", lineHeight: 1.4 }}>{tmpl.caption.slice(0, 80)}...</p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {/* Post Builder */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* Left: Content Editor */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <SectionCard title="Contenido del Post">
+            {/* Post Type */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Tipo de Post</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { id: "feed", label: "Feed", icon: "🖼️" },
+                  { id: "reel", label: "Reel", icon: "🎬" },
+                  { id: "carousel", label: "Carousel", icon: "📸" },
+                  { id: "story", label: "Story", icon: "📱" },
+                ].map((t) => (
+                  <button key={t.id} onClick={() => setPostType(t.id)}
+                    style={{
+                      flex: 1, padding: "10px", borderRadius: 10, border: `1px solid ${postType === t.id ? COLORS.terracotta : COLORS.lightGray}`,
+                      background: postType === t.id ? `${COLORS.terracotta}10` : COLORS.white,
+                      cursor: "pointer", textAlign: "center",
+                    }}>
+                    <div style={{ fontSize: 20, marginBottom: 4 }}>{t.icon}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: postType === t.id ? COLORS.terracotta : COLORS.darkGray }}>{t.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Pillar */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Pilar de Contenido</label>
+              <div style={{ display: "flex", gap: 6 }}>
+                {CONTENT_PILLARS.map((p) => (
+                  <button key={p.name} onClick={() => setSelectedPillar(p.name)}
+                    style={{
+                      padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: "pointer",
+                      background: selectedPillar === p.name ? p.color : COLORS.lightGray,
+                      color: selectedPillar === p.name ? COLORS.white : COLORS.darkGray,
+                      border: "none",
+                    }}>
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Caption */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Caption</label>
+              <textarea value={caption} onChange={(e) => setCaption(e.target.value)}
+                placeholder="Escribe tu caption aquí..."
+                style={{ width: "100%", minHeight: 100, padding: 12, borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+              />
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                <span style={{ fontSize: 11, color: "#9CA3AF" }}>{caption.length} caracteres</span>
+                <span style={{ fontSize: 11, color: caption.length > 2200 ? COLORS.negative : "#9CA3AF" }}>Límite: 2,200</span>
+              </div>
+            </div>
+
+            {/* Hashtags */}
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Hashtags</label>
+              <textarea value={hashtags} onChange={(e) => setHashtags(e.target.value)}
+                style={{ width: "100%", minHeight: 50, padding: 12, borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, resize: "vertical", outline: "none", fontFamily: "inherit", color: COLORS.terracotta, boxSizing: "border-box" }}
+              />
+            </div>
+          </SectionCard>
+        </div>
+
+        {/* Right: Image Generator */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <SectionCard title="Generar Imagen" subtitle="Powered by Freepik AI (Mystic)">
+            {/* Engine Selection */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Motor AI</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { id: "sharpy", label: "Sharpy", desc: "Foto realista" },
+                  { id: "illusio", label: "Illusio", desc: "Ilustraciones" },
+                  { id: "sparkle", label: "Sparkle", desc: "Equilibrado" },
+                ].map((e) => (
+                  <button key={e.id} onClick={() => setSelectedEngine(e.id)}
+                    style={{
+                      flex: 1, padding: "10px", borderRadius: 10, textAlign: "center", cursor: "pointer",
+                      border: `1px solid ${selectedEngine === e.id ? COLORS.olive : COLORS.lightGray}`,
+                      background: selectedEngine === e.id ? `${COLORS.olive}10` : COLORS.white,
+                    }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: selectedEngine === e.id ? COLORS.olive : COLORS.darkGray }}>{e.label}</div>
+                    <div style={{ fontSize: 11, color: "#9CA3AF" }}>{e.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Aspect Ratio */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Formato</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { id: "square_1_1", label: "1:1", desc: "Feed" },
+                  { id: "portrait_4_5", label: "4:5", desc: "Portrait" },
+                  { id: "portrait_9_16", label: "9:16", desc: "Story/Reel" },
+                  { id: "widescreen_16_9", label: "16:9", desc: "Landscape" },
+                ].map((r) => (
+                  <button key={r.id} onClick={() => setSelectedRatio(r.id)}
+                    style={{
+                      flex: 1, padding: "8px", borderRadius: 8, textAlign: "center", cursor: "pointer",
+                      border: `1px solid ${selectedRatio === r.id ? COLORS.mustard : COLORS.lightGray}`,
+                      background: selectedRatio === r.id ? `${COLORS.mustard}10` : COLORS.white,
+                      fontSize: 12, fontWeight: selectedRatio === r.id ? 600 : 400,
+                      color: selectedRatio === r.id ? COLORS.mustard : COLORS.darkGray,
+                    }}>
+                    {r.label}<br /><span style={{ fontSize: 10, color: "#9CA3AF" }}>{r.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Image Prompt */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 8 }}>Prompt de Imagen</label>
+              <textarea value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}
+                placeholder="Describe la imagen que quieres generar... Sé específico con colores, ángulos, estilo y ambiente."
+                style={{ width: "100%", minHeight: 80, padding: 12, borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+              />
+            </div>
+
+            <button onClick={handleGenerateImage} disabled={generatingImage || !imagePrompt}
+              style={{
+                width: "100%", padding: "12px", borderRadius: 10, border: "none", cursor: generatingImage ? "wait" : "pointer",
+                background: generatingImage ? "#9CA3AF" : `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.accent1})`,
+                color: COLORS.white, fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              }}>
+              {generatingImage ? <RefreshCw size={16} style={{ animation: "spin 1s linear infinite" }} /> : <Wand2 size={16} />}
+              {generatingImage ? "Generando..." : "Generar con Freepik AI"}
+            </button>
+
+            {/* Generated Images Preview Area */}
+            <div style={{ marginTop: 16, minHeight: 160, border: `2px dashed ${COLORS.lightGray}`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8, padding: 20 }}>
+              {generatedImages.length === 0 ? (
+                <>
+                  <Image size={32} color="#D1D5DB" />
+                  <span style={{ fontSize: 13, color: "#9CA3AF" }}>Las imágenes generadas aparecerán aquí</span>
+                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Conecta tu Freepik API key para empezar</span>
+                </>
+              ) : (
+                <div style={{ textAlign: "center" }}>
+                  <CheckCircle size={32} color={COLORS.positive} />
+                  <p style={{ fontSize: 13, color: COLORS.positive, fontWeight: 600 }}>{generatedImages.length} imagen(es) generada(s)</p>
+                </div>
+              )}
+            </div>
+          </SectionCard>
+        </div>
+      </div>
+
+      {/* Post Preview */}
+      <SectionCard title="Preview del Post">
+        <div style={{ display: "flex", gap: 24, alignItems: "start" }}>
+          {/* Phone mockup */}
+          <div style={{ width: 320, flexShrink: 0, background: "#000", borderRadius: 28, padding: "12px", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+            <div style={{ background: COLORS.white, borderRadius: 20, overflow: "hidden" }}>
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderBottom: `1px solid ${COLORS.lightGray}` }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.mustard})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: COLORS.white }}>OH</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>ohmexico</div>
+                  <div style={{ fontSize: 10, color: "#9CA3AF" }}>Sponsored</div>
+                </div>
+              </div>
+              {/* Image area */}
+              <div style={{
+                width: "100%", aspectRatio: postType === "story" || postType === "reel" ? "9/16" : postType === "feed" ? "1/1" : "4/5",
+                maxHeight: 320,
+                background: `linear-gradient(135deg, ${COLORS.terracotta}30, ${COLORS.mustard}20)`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <div style={{ textAlign: "center" }}>
+                  <Camera size={36} color={COLORS.terracotta} />
+                  <p style={{ fontSize: 12, color: COLORS.terracotta, marginTop: 8 }}>{postType.toUpperCase()} • {selectedRatio.replace("_", " ")}</p>
+                </div>
+              </div>
+              {/* Engagement bar */}
+              <div style={{ display: "flex", gap: 16, padding: "10px 14px" }}>
+                <Heart size={22} color="#262626" />
+                <MessageCircle size={22} color="#262626" />
+                <Send size={22} color="#262626" />
+                <Bookmark size={22} color="#262626" style={{ marginLeft: "auto" }} />
+              </div>
+              {/* Caption */}
+              <div style={{ padding: "0 14px 14px" }}>
+                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.4 }}>
+                  <span style={{ fontWeight: 700 }}>ohmexico </span>
+                  {caption || "Tu caption aparecerá aquí..."}
+                </p>
+                {hashtags && <p style={{ margin: "6px 0 0", fontSize: 12, color: "#00376B" }}>{hashtags}</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Post Summary */}
+          <div style={{ flex: 1 }}>
+            <h4 style={{ margin: "0 0 16px", fontSize: 16, color: COLORS.navy }}>Resumen del Post</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ padding: 14, borderRadius: 10, background: COLORS.lightGray }}>
+                <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>Tipo</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{postType.charAt(0).toUpperCase() + postType.slice(1)}</div>
+              </div>
+              <div style={{ padding: 14, borderRadius: 10, background: COLORS.lightGray }}>
+                <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>Pilar</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{selectedPillar}</div>
+              </div>
+              <div style={{ padding: 14, borderRadius: 10, background: COLORS.lightGray }}>
+                <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>Motor AI</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{selectedEngine}</div>
+              </div>
+              <div style={{ padding: 14, borderRadius: 10, background: COLORS.lightGray }}>
+                <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>Formato</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{selectedRatio.replace(/_/g, " ")}</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+              <button style={{ flex: 1, padding: "12px", borderRadius: 10, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, cursor: "pointer" }}>
+                Guardar Borrador
+              </button>
+              <button style={{ flex: 1, padding: "12px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, cursor: "pointer" }}>
+                Programar Post
+              </button>
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+// ─── MEDIA LIBRARY TAB ───
+function MediaLibraryTab() {
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [viewMode, setViewMode] = useState("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showUpload, setShowUpload] = useState(false);
+  const [mediaItems, setMediaItems] = useState([
+    // Demo data — in production these would come from uploaded files / Freepik
+    { id: 1, name: "Molcajete Hero Shot", category: "platos", location: "Española Way", tags: ["molcajete", "hero", "signature"], url: null, date: "2026-03-20", size: "4.2 MB", dimensions: "4032×3024", usedIn: 3, color: "#C4622D" },
+    { id: 2, name: "Margarita Clásica", category: "tragos", location: "Ocean Drive", tags: ["margarita", "cocktail", "classic"], url: null, date: "2026-03-18", size: "3.8 MB", dimensions: "3024×4032", usedIn: 5, color: "#D4A030" },
+    { id: 3, name: "Quesabirria Tacos", category: "platos", location: "Ocean Drive", tags: ["tacos", "quesabirria", "birria"], url: null, date: "2026-03-16", size: "5.1 MB", dimensions: "4032×3024", usedIn: 2, color: "#C4622D" },
+    { id: 4, name: "Española Way Exterior", category: "locales", location: "Española Way", tags: ["exterior", "fachada", "night"], url: null, date: "2026-03-15", size: "6.3 MB", dimensions: "5472×3648", usedIn: 4, color: "#1B2A4A" },
+    { id: 5, name: "Tequila Wall Display", category: "locales", location: "Española Way", tags: ["tequila", "interior", "bar"], url: null, date: "2026-03-14", size: "4.8 MB", dimensions: "4032×3024", usedIn: 1, color: "#6B7D3A" },
+    { id: 6, name: "Guacamole Prep", category: "platos", location: "Lincoln Road", tags: ["guacamole", "fresh", "tableside"], url: null, date: "2026-03-13", size: "3.5 MB", dimensions: "3024×4032", usedIn: 6, color: "#6B7D3A" },
+    { id: 7, name: "Menú Principal Española", category: "menus", location: "Española Way", tags: ["menu", "principal", "dinner"], url: null, date: "2026-03-10", size: "2.1 MB", dimensions: "3508×2480", usedIn: 0, color: "#1B2A4A" },
+    { id: 8, name: "Happy Hour Jalapeño Marg", category: "tragos", location: "Lincoln Road", tags: ["margarita", "jalapeño", "spicy"], url: null, date: "2026-03-10", size: "4.0 MB", dimensions: "3024×4032", usedIn: 3, color: "#D4A030" },
+    { id: 9, name: "Lincoln Road Terraza", category: "locales", location: "Lincoln Road", tags: ["terraza", "exterior", "outdoor"], url: null, date: "2026-03-08", size: "5.7 MB", dimensions: "5472×3648", usedIn: 2, color: "#1B2A4A" },
+    { id: 10, name: "Cochinita Pibil Plato", category: "platos", location: "Española Way", tags: ["cochinita", "pibil", "yucatan"], url: null, date: "2026-03-07", size: "4.4 MB", dimensions: "4032×3024", usedIn: 1, color: "#C4622D" },
+    { id: 11, name: "Menú Taco Shop Ocean", category: "menus", location: "Ocean Drive", tags: ["menu", "taco shop", "casual"], url: null, date: "2026-03-05", size: "1.8 MB", dimensions: "3508×2480", usedIn: 0, color: "#1B2A4A" },
+    { id: 12, name: "Mezcal Flight", category: "tragos", location: "Española Way", tags: ["mezcal", "flight", "tasting"], url: null, date: "2026-03-03", size: "3.2 MB", dimensions: "4032×3024", usedIn: 2, color: "#D4A030" },
+    { id: 13, name: "Ocean Drive Sunset View", category: "locales", location: "Ocean Drive", tags: ["sunset", "ocean", "view"], url: null, date: "2026-03-02", size: "7.1 MB", dimensions: "5472×3648", usedIn: 4, color: "#E8845C" },
+    { id: 14, name: "Chile Relleno Close-up", category: "platos", location: "Lincoln Road", tags: ["chile relleno", "close-up", "plating"], url: null, date: "2026-03-01", size: "3.9 MB", dimensions: "3024×4032", usedIn: 1, color: "#C4622D" },
+    { id: 15, name: "Menú Happy Hour", category: "menus", location: "Española Way", tags: ["menu", "happy hour", "drinks"], url: null, date: "2026-02-28", size: "1.5 MB", dimensions: "3508×2480", usedIn: 0, color: "#6B7D3A" },
+    { id: 16, name: "Chips & Salsa Sampler", category: "platos", location: "Española Way", tags: ["chips", "salsa", "appetizer"], url: null, date: "2026-02-26", size: "3.3 MB", dimensions: "4032×3024", usedIn: 2, color: "#C4622D" },
+    { id: 17, name: "Tequila Sunrise Cocktail", category: "tragos", location: "Ocean Drive", tags: ["tequila sunrise", "cocktail", "tropical"], url: null, date: "2026-02-25", size: "3.6 MB", dimensions: "3024×4032", usedIn: 1, color: "#D4A030" },
+    { id: 18, name: "Mariachi Night", category: "locales", location: "Española Way", tags: ["mariachi", "music", "atmosphere"], url: null, date: "2026-02-22", size: "5.0 MB", dimensions: "4032×3024", usedIn: 3, color: "#1B2A4A" },
+  ]);
+  const [uploadForm, setUploadForm] = useState({ name: "", category: "platos", location: "Española Way", tags: "" });
+
+  const CATEGORIES = [
+    { id: "all", label: "Todos", icon: Grid3X3, count: mediaItems.length },
+    { id: "platos", label: "Platos", icon: "🍽️", count: mediaItems.filter(m => m.category === "platos").length },
+    { id: "tragos", label: "Tragos", icon: "🍹", count: mediaItems.filter(m => m.category === "tragos").length },
+    { id: "locales", label: "Locales", icon: "🏪", count: mediaItems.filter(m => m.category === "locales").length },
+    { id: "menus", label: "Menús", icon: "📋", count: mediaItems.filter(m => m.category === "menus").length },
+  ];
+
+  const LOCATIONS = ["Española Way", "Ocean Drive", "Lincoln Road"];
+
+  const filteredItems = mediaItems.filter(item => {
+    const matchCat = activeCategory === "all" || item.category === activeCategory;
+    const matchSearch = !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchCat && matchSearch;
+  });
+
+  const handleUpload = () => {
+    if (!uploadForm.name) return;
+    const newItem = {
+      id: Date.now(),
+      name: uploadForm.name,
+      category: uploadForm.category,
+      location: uploadForm.location,
+      tags: uploadForm.tags.split(",").map(t => t.trim()).filter(Boolean),
+      url: null,
+      date: new Date().toISOString().slice(0, 10),
+      size: "-- MB",
+      dimensions: "Pending",
+      usedIn: 0,
+      color: { platos: "#C4622D", tragos: "#D4A030", locales: "#1B2A4A", menus: "#6B7D3A" }[uploadForm.category],
+    };
+    setMediaItems(prev => [newItem, ...prev]);
+    setUploadForm({ name: "", category: "platos", location: "Española Way", tags: "" });
+    setShowUpload(false);
+  };
+
+  const handleDelete = (id) => {
+    setMediaItems(prev => prev.filter(m => m.id !== id));
+    if (selectedImage?.id === id) setSelectedImage(null);
+  };
+
+  const catColors = { platos: COLORS.terracotta, tragos: COLORS.mustard, locales: COLORS.navy, menus: COLORS.olive };
+  const catLabels = { platos: "Plato", tragos: "Trago", locales: "Local", menus: "Menú" };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Media Library</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9CA3AF" }}>Base de datos visual — platos, tragos, locales y menús</p>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setShowUpload(!showUpload)}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+            <Upload size={16} /> Subir Fotos
+          </button>
+          <button
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+            <Sparkles size={16} /> Generar con Freepik
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+        {CATEGORIES.map((cat) => {
+          const isActive = activeCategory === cat.id;
+          return (
+            <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderRadius: 12, cursor: "pointer",
+                background: isActive ? (cat.id === "all" ? COLORS.navy : catColors[cat.id]) : COLORS.white,
+                border: isActive ? "none" : `1px solid ${COLORS.lightGray}`,
+                color: isActive ? COLORS.white : COLORS.darkGray, transition: "all 0.2s",
+              }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {typeof cat.icon === "string" ? (
+                  <span style={{ fontSize: 20 }}>{cat.icon}</span>
+                ) : (
+                  <cat.icon size={18} />
+                )}
+                <span style={{ fontSize: 14, fontWeight: 600 }}>{cat.label}</span>
+              </div>
+              <span style={{ fontSize: 20, fontWeight: 800 }}>{cat.count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Upload Panel */}
+      {showUpload && (
+        <SectionCard title="Subir Nueva Foto" style={{ border: `2px dashed ${COLORS.terracotta}40`, background: `${COLORS.terracotta}04` }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {/* Drop zone */}
+            <div style={{
+              border: `2px dashed ${COLORS.lightGray}`, borderRadius: 12, padding: 40, textAlign: "center",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 12, cursor: "pointer",
+              background: COLORS.white, minHeight: 180, justifyContent: "center",
+            }}>
+              <Upload size={40} color="#D1D5DB" />
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: COLORS.navy }}>Arrastra fotos aquí</p>
+              <p style={{ margin: 0, fontSize: 13, color: "#9CA3AF" }}>o haz click para seleccionar</p>
+              <p style={{ margin: 0, fontSize: 11, color: "#D1D5DB" }}>JPG, PNG, WEBP • Max 20MB</p>
+            </div>
+            {/* Form */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Nombre</label>
+                <input type="text" value={uploadForm.name} onChange={(e) => setUploadForm(p => ({ ...p, name: e.target.value }))}
+                  placeholder="Ej: Molcajete Hero Shot"
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Categoría</label>
+                  <select value={uploadForm.category} onChange={(e) => setUploadForm(p => ({ ...p, category: e.target.value }))}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", background: COLORS.white }}>
+                    <option value="platos">🍽️ Platos</option>
+                    <option value="tragos">🍹 Tragos</option>
+                    <option value="locales">🏪 Locales</option>
+                    <option value="menus">📋 Menús</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Locación</label>
+                  <select value={uploadForm.location} onChange={(e) => setUploadForm(p => ({ ...p, location: e.target.value }))}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", background: COLORS.white }}>
+                    {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Tags (separados por coma)</label>
+                <input type="text" value={uploadForm.tags} onChange={(e) => setUploadForm(p => ({ ...p, tags: e.target.value }))}
+                  placeholder="Ej: molcajete, hero, signature"
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={handleUpload}
+                  style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+                  Guardar en Biblioteca
+                </button>
+                <button onClick={() => setShowUpload(false)}
+                  style={{ padding: "10px 16px", borderRadius: 8, background: COLORS.lightGray, color: COLORS.darkGray, border: "none", fontWeight: 500, fontSize: 14, cursor: "pointer" }}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* Search + Filter Bar */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div style={{ flex: 1, position: "relative" }}>
+          <Search size={16} color="#9CA3AF" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por nombre, tag o palabra clave..."
+            style={{ width: "100%", padding: "10px 12px 10px 36px", borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
+        </div>
+        <div style={{ display: "flex", gap: 4, background: COLORS.lightGray, borderRadius: 8, padding: 3 }}>
+          {["grid", "list"].map((mode) => (
+            <button key={mode} onClick={() => setViewMode(mode)}
+              style={{
+                padding: "6px 12px", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 500,
+                background: viewMode === mode ? COLORS.white : "transparent",
+                color: viewMode === mode ? COLORS.navy : "#9CA3AF",
+                boxShadow: viewMode === mode ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
+              }}>
+              {mode === "grid" ? "Grid" : "Lista"}
+            </button>
+          ))}
+        </div>
+        <select style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, outline: "none", background: COLORS.white, color: COLORS.darkGray }}>
+          <option>Todas las locaciones</option>
+          {LOCATIONS.map(l => <option key={l}>{l}</option>)}
+        </select>
+      </div>
+
+      {/* Results Count */}
+      <div style={{ fontSize: 13, color: "#9CA3AF" }}>
+        {filteredItems.length} {filteredItems.length === 1 ? "archivo" : "archivos"} {activeCategory !== "all" ? `en ${CATEGORIES.find(c => c.id === activeCategory)?.label}` : "en total"}
+      </div>
+
+      {/* Grid / List View */}
+      {viewMode === "grid" ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
+          {filteredItems.map((item) => (
+            <div key={item.id} onClick={() => setSelectedImage(selectedImage?.id === item.id ? null : item)}
+              style={{
+                borderRadius: 14, overflow: "hidden", cursor: "pointer", border: `1px solid ${selectedImage?.id === item.id ? COLORS.terracotta : COLORS.lightGray}`,
+                boxShadow: selectedImage?.id === item.id ? `0 0 0 2px ${COLORS.terracotta}40` : "0 1px 3px rgba(0,0,0,0.06)",
+                transition: "all 0.2s", background: COLORS.white,
+              }}>
+              {/* Image placeholder */}
+              <div style={{
+                width: "100%", aspectRatio: item.category === "menus" ? "3/4" : "1/1",
+                background: `linear-gradient(135deg, ${item.color}25, ${item.color}10)`,
+                display: "flex", alignItems: "center", justifyContent: "center", position: "relative",
+              }}>
+                <Camera size={28} color={`${item.color}60`} />
+                <div style={{ position: "absolute", top: 8, right: 8 }}>
+                  <Badge text={catLabels[item.category]} color={catColors[item.category]} />
+                </div>
+                {item.usedIn > 0 && (
+                  <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(0,0,0,0.6)", color: COLORS.white, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>
+                    Usada {item.usedIn}x
+                  </div>
+                )}
+              </div>
+              {/* Info */}
+              <div style={{ padding: "10px 12px" }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                  <span style={{ fontSize: 11, color: "#9CA3AF" }}>{item.location}</span>
+                  <span style={{ fontSize: 11, color: "#9CA3AF" }}>{item.date.slice(5)}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <SectionCard>
+          <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 100px 100px 80px 80px 60px 40px", gap: 12, padding: "0 0 10px", borderBottom: `2px solid ${COLORS.lightGray}`, fontSize: 11, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase" }}>
+            <span></span><span>Nombre</span><span>Categoría</span><span>Locación</span><span>Tamaño</span><span>Fecha</span><span>Usado</span><span></span>
+          </div>
+          {filteredItems.map((item) => (
+            <div key={item.id} onClick={() => setSelectedImage(selectedImage?.id === item.id ? null : item)}
+              style={{
+                display: "grid", gridTemplateColumns: "60px 1fr 100px 100px 80px 80px 60px 40px", gap: 12, alignItems: "center",
+                padding: "10px 0", borderBottom: `1px solid ${COLORS.lightGray}`, cursor: "pointer",
+                background: selectedImage?.id === item.id ? `${COLORS.terracotta}06` : "transparent",
+              }}>
+              <div style={{ width: 48, height: 48, borderRadius: 8, background: `linear-gradient(135deg, ${item.color}25, ${item.color}10)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Camera size={16} color={`${item.color}60`} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{item.name}</div>
+                <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
+                  {item.tags.slice(0, 3).map(t => (
+                    <span key={t} style={{ fontSize: 10, color: "#9CA3AF", background: COLORS.lightGray, padding: "1px 6px", borderRadius: 4 }}>{t}</span>
+                  ))}
+                </div>
+              </div>
+              <Badge text={catLabels[item.category]} color={catColors[item.category]} />
+              <span style={{ fontSize: 13, color: COLORS.darkGray }}>{item.location}</span>
+              <span style={{ fontSize: 13, color: "#9CA3AF" }}>{item.size}</span>
+              <span style={{ fontSize: 13, color: "#9CA3AF" }}>{item.date.slice(5)}</span>
+              <span style={{ fontSize: 13, color: item.usedIn > 0 ? COLORS.positive : "#9CA3AF" }}>{item.usedIn}x</span>
+              <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+                <Trash2 size={14} color="#D1D5DB" />
+              </button>
+            </div>
+          ))}
+        </SectionCard>
+      )}
+
+      {/* Selected Image Detail Panel */}
+      {selectedImage && (
+        <SectionCard style={{ border: `2px solid ${COLORS.terracotta}30` }}>
+          <div style={{ display: "flex", gap: 24 }}>
+            {/* Image preview */}
+            <div style={{
+              width: 300, aspectRatio: selectedImage.category === "menus" ? "3/4" : "1/1",
+              borderRadius: 14, background: `linear-gradient(135deg, ${selectedImage.color}25, ${selectedImage.color}10)`,
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <Camera size={48} color={`${selectedImage.color}40`} />
+            </div>
+            {/* Details */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>{selectedImage.name}</h3>
+                  <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                    <Badge text={catLabels[selectedImage.category]} color={catColors[selectedImage.category]} />
+                    <Badge text={selectedImage.location} color={COLORS.navy} />
+                  </div>
+                </div>
+                <button onClick={() => setSelectedImage(null)}
+                  style={{ background: "none", border: "none", cursor: "pointer" }}>
+                  <X size={20} color="#9CA3AF" />
+                </button>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                {[
+                  { label: "Tamaño", value: selectedImage.size },
+                  { label: "Dimensiones", value: selectedImage.dimensions },
+                  { label: "Fecha", value: selectedImage.date },
+                  { label: "Usada en posts", value: `${selectedImage.usedIn} posts` },
+                ].map((d) => (
+                  <div key={d.label} style={{ padding: 12, borderRadius: 8, background: COLORS.lightGray }}>
+                    <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 2 }}>{d.label}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{d.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 6 }}>Tags</label>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {selectedImage.tags.map(tag => (
+                    <span key={tag} style={{ padding: "4px 12px", borderRadius: 16, background: `${COLORS.terracotta}10`, border: `1px solid ${COLORS.terracotta}25`, fontSize: 12, color: COLORS.terracotta, fontWeight: 500 }}>
+                      {tag}
+                    </span>
+                  ))}
+                  <button style={{ padding: "4px 10px", borderRadius: 16, background: COLORS.lightGray, border: "none", fontSize: 12, color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                    <Plus size={12} /> Agregar
+                  </button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
+                <button style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <PenTool size={14} /> Usar en Post
+                </button>
+                <button style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <Wand2 size={14} /> Editar con Freepik
+                </button>
+                <button style={{ padding: "10px", borderRadius: 8, background: COLORS.lightGray, color: COLORS.darkGray, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <Download size={14} />
+                </button>
+                <button onClick={() => handleDelete(selectedImage.id)}
+                  style={{ padding: "10px", borderRadius: 8, background: `${COLORS.negative}10`, color: COLORS.negative, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* Storage Summary */}
+      <div style={{ background: `linear-gradient(135deg, ${COLORS.navy}, #2D3F6A)`, borderRadius: 16, padding: 24, color: COLORS.white }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h3 style={{ margin: "0 0 4px", fontSize: 16 }}>Almacenamiento de Media</h3>
+            <p style={{ margin: 0, fontSize: 13, opacity: 0.7 }}>{mediaItems.length} archivos • {(mediaItems.reduce((s, m) => s + parseFloat(m.size), 0)).toFixed(1)} MB total</p>
+          </div>
+          <div style={{ display: "flex", gap: 20, textAlign: "center" }}>
+            {Object.entries(catLabels).map(([key, label]) => (
+              <div key={key}>
+                <div style={{ fontSize: 22, fontWeight: 800 }}>{mediaItems.filter(m => m.category === key).length}</div>
+                <div style={{ fontSize: 11, opacity: 0.7 }}>{label}s</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN PLATFORM ───
+function OhMexicoPlatform() {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [apiConnected, setApiConnected] = useState(true);
+  const [accessToken, setAccessToken] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
+  const [followerData] = useState(generateDemoFollowers);
+  const [engagementData] = useState(generateDemoEngagement);
+  const [reachData] = useState(generateDemoReach);
+  const [calendarWeek, setCalendarWeek] = useState(0);
+
+  const tabs = [
+    { id: "overview", label: "Overview", icon: BarChart3 },
+    { id: "reputation", label: "Reputación", icon: Shield },
+    { id: "content", label: "Contenido", icon: Grid3X3 },
+    { id: "calendar", label: "Calendario", icon: Calendar },
+    { id: "intelligence", label: "Inteligencia", icon: Target },
+    { id: "creator", label: "Crear Post", icon: PenTool },
+    { id: "media", label: "Media Library", icon: Database },
+    { id: "locations", label: "Locaciones", icon: MapPin },
+  ];
+
+  const totalEngagement = DEMO_POSTS.reduce((s, p) => s + p.likes + p.comments + p.shares + p.saves, 0);
+  const avgEngRate = ((totalEngagement / DEMO_POSTS.reduce((s, p) => s + p.reach, 0)) * 100).toFixed(1);
+  const totalReach = DEMO_POSTS.reduce((s, p) => s + p.reach, 0);
+  const bestPost = DEMO_POSTS.reduce((a, b) => (a.reach > b.reach ? a : b));
+  const calItems = CALENDAR_ITEMS.slice(calendarWeek * 7, calendarWeek * 7 + 7);
+
+  return (
+    <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", background: "#F9FAFB", minHeight: "100vh", color: COLORS.darkGray }}>
+      {/* ─── HEADER ─── */}
+      <div style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, #2D3F6A 100%)`, padding: "20px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <img src="https://www.ohmexicorestaurant.com/wp-content/uploads/2021/12/oh-mexico-logo.png" alt="Oh! Mexico" style={{ height: 44, objectFit: "contain" }} />
+          <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.2)" }} />
+          <div>
+            <h1 style={{ margin: 0, color: COLORS.white, fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>Brand Management Suite</h1>
+            <p style={{ margin: 0, color: "#94A3B8", fontSize: 13 }}>@ohmexico • 20.1K followers • 3 locations</p>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 20, background: apiConnected ? "#16a34a22" : "#dc262622", border: `1px solid ${apiConnected ? "#16a34a" : "#dc2626"}44` }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: apiConnected ? "#16a34a" : "#dc2626" }} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: apiConnected ? "#16a34a" : "#dc2626" }}>{apiConnected ? "APIs Connected" : "Demo Mode"}</span>
+          </div>
+          <button onClick={() => setShowSettings(!showSettings)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer", display: "flex" }}>
+            <Settings size={18} color={COLORS.white} />
+          </button>
+        </div>
+      </div>
+
+      {/* ─── API SETTINGS ─── */}
+      {showSettings && (
+        <div style={{ background: COLORS.white, borderBottom: `1px solid ${COLORS.lightGray}`, padding: "20px 32px" }}>
+          <h3 style={{ margin: "0 0 12px", fontSize: 16, color: COLORS.navy }}>API Configuration</h3>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", maxWidth: 600 }}>
+            <input type="text" placeholder="Instagram Access Token" value={accessToken} onChange={(e) => setAccessToken(e.target.value)}
+              style={{ flex: 1, padding: "10px 14px", borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none" }} />
+            <button onClick={() => { if (accessToken.length > 10) setApiConnected(true); }}
+              style={{ padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+              Conectar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── NAVIGATION ─── */}
+      <div style={{ display: "flex", gap: 2, padding: "16px 32px 0", borderBottom: `1px solid ${COLORS.lightGray}`, background: COLORS.white, overflowX: "auto" }}>
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", border: "none", background: "none",
+                cursor: "pointer", fontSize: 13, fontWeight: isActive ? 600 : 400, whiteSpace: "nowrap",
+                color: isActive ? COLORS.terracotta : "#6B7280",
+                borderBottom: isActive ? `2px solid ${COLORS.terracotta}` : "2px solid transparent",
+                marginBottom: -1, transition: "all 0.2s",
+              }}>
+              <Icon size={15} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ─── CONTENT ─── */}
+      <div style={{ padding: "24px 32px", maxWidth: 1320, margin: "0 auto" }}>
+
+        {/* === OVERVIEW === */}
+        {activeTab === "overview" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+              <MetricCard icon={Users} label="Seguidores" value="20,100" change="+3.2%" changeType="up" color={COLORS.navy} />
+              <MetricCard icon={Heart} label="Engagement Rate" value={`${avgEngRate}%`} change="+0.8%" changeType="up" color={COLORS.terracotta} />
+              <MetricCard icon={Eye} label="Alcance Mensual" value={`${(totalReach / 1000).toFixed(1)}K`} change="+12%" changeType="up" color={COLORS.olive} />
+              <MetricCard icon={Zap} label="Best Performer" value={`${(bestPost.reach / 1000).toFixed(1)}K`} change="Reel" changeType="up" color={COLORS.mustard} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <SectionCard title="Crecimiento de Seguidores">
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={followerData}>
+                    <defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={COLORS.terracotta} stopOpacity={0.2} /><stop offset="95%" stopColor={COLORS.terracotta} stopOpacity={0} /></linearGradient></defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" /><XAxis dataKey="month" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} domain={["dataMin - 200", "dataMax + 200"]} /><Tooltip />
+                    <Area type="monotone" dataKey="followers" stroke={COLORS.terracotta} fill="url(#fg)" strokeWidth={2.5} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </SectionCard>
+              <SectionCard title="Engagement por Día">
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={engagementData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" /><XAxis dataKey="day" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} /><Tooltip />
+                    <Bar dataKey="likes" stackId="a" fill={COLORS.terracotta} /><Bar dataKey="comments" stackId="a" fill={COLORS.mustard} /><Bar dataKey="saves" stackId="a" fill={COLORS.olive} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </SectionCard>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <SectionCard title="Alcance e Impresiones">
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={reachData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" /><XAxis dataKey="week" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} /><Tooltip />
+                    <Line type="monotone" dataKey="reach" stroke={COLORS.terracotta} strokeWidth={2.5} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="impressions" stroke={COLORS.navy} strokeWidth={2.5} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="profileVisits" stroke={COLORS.olive} strokeWidth={2} strokeDasharray="5 5" dot={{ r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </SectionCard>
+              <SectionCard title="Pilares de Contenido">
+                <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                  <ResponsiveContainer width="50%" height={200}>
+                    <PieChart><Pie data={CONTENT_PILLARS} dataKey="percentage" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3}>
+                      {CONTENT_PILLARS.map((e, i) => <Cell key={i} fill={e.color} />)}
+                    </Pie><Tooltip /></PieChart>
+                  </ResponsiveContainer>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {CONTENT_PILLARS.map((p) => (
+                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ width: 10, height: 10, borderRadius: 3, background: p.color }} />
+                        <span style={{ fontSize: 13 }}>{p.name}</span>
+                        <span style={{ fontSize: 12, color: "#9CA3AF", marginLeft: "auto" }}>{p.percentage}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
+            <div style={{ background: `linear-gradient(135deg, ${COLORS.mustard}15, ${COLORS.terracotta}10)`, borderRadius: 16, padding: 20, border: `1px solid ${COLORS.mustard}30`, display: "flex", alignItems: "center", gap: 16 }}>
+              <Award size={32} color={COLORS.mustard} />
+              <div>
+                <h4 style={{ margin: 0, fontSize: 15, color: COLORS.navy }}>Reconocimientos para destacar en contenido</h4>
+                <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6B7280" }}>Best Margaritas — New Times 2024 | Travelers' Choice 2024 | Top 100 Mexican USA | CBS "Taste of the Town"</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* === REPUTATION === */}
+        {activeTab === "reputation" && <ReputationTab />}
+
+        {/* === CONTENT === */}
+        {activeTab === "content" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Performance de Contenido</h2>
+              <div style={{ display: "flex", gap: 8 }}>
+                {["Todos", "Reels", "Carousel", "Feed", "Stories"].map((f) => (
+                  <button key={f} style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${COLORS.lightGray}`, background: f === "Todos" ? COLORS.navy : COLORS.white, color: f === "Todos" ? COLORS.white : COLORS.darkGray, fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{f}</button>
+                ))}
+              </div>
+            </div>
+            <SectionCard>
+              <div style={{ display: "grid", gridTemplateColumns: "auto 1fr repeat(5, 70px) 70px", gap: 12, padding: "0 0 12px", borderBottom: `2px solid ${COLORS.lightGray}`, fontSize: 12, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase" }}>
+                <span>Tipo</span><span>Caption</span><span style={{ textAlign: "center" }}>Likes</span><span style={{ textAlign: "center" }}>Com.</span><span style={{ textAlign: "center" }}>Share</span><span style={{ textAlign: "center" }}>Save</span><span style={{ textAlign: "center" }}>Eng%</span><span style={{ textAlign: "center" }}>Fecha</span>
+              </div>
+              {DEMO_POSTS.map((post) => <PostRow key={post.id} post={post} />)}
+            </SectionCard>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+              {[
+                { type: "Reels", avg: "14.7K", emoji: "🎬", eng: "6.8%", tip: "Best performer — priorizar" },
+                { type: "Carousels", avg: "9.8K", emoji: "📸", eng: "5.2%", tip: "Alto en saves — educar" },
+                { type: "Feed", avg: "7.6K", emoji: "🖼️", eng: "4.1%", tip: "Brand awareness" },
+                { type: "Stories", avg: "8.2K", emoji: "📱", eng: "3.5%", tip: "Engagement directo" },
+              ].map((t) => (
+                <div key={t.type} style={{ background: COLORS.white, borderRadius: 16, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", border: `1px solid ${COLORS.lightGray}`, textAlign: "center" }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>{t.emoji}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.navy }}>{t.type}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.terracotta, margin: "4px 0" }}>{t.avg}</div>
+                  <div style={{ fontSize: 13, color: "#6B7280" }}>Avg. Reach</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.olive, marginTop: 4 }}>{t.eng} eng.</div>
+                  <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6, fontStyle: "italic" }}>{t.tip}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* === CALENDAR === */}
+        {activeTab === "calendar" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Calendario Editorial</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <button onClick={() => setCalendarWeek(Math.max(0, calendarWeek - 1))} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronLeft size={18} /></button>
+                <span style={{ fontSize: 14, fontWeight: 600, color: COLORS.navy }}>{calendarWeek === 0 ? "Semana Actual" : `Semana +${calendarWeek}`}</span>
+                <button onClick={() => setCalendarWeek(Math.min(1, calendarWeek + 1))} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronRight size={18} /></button>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+              {[{ label: "Idea", color: "#D1D5DB" }, { label: "Borrador", color: "#FCD34D" }, { label: "Aprobado", color: "#86EFAC" }, { label: "Programado", color: "#93C5FD" }, { label: "Publicado", color: "#A78BFA" }].map((s) => (
+                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: 3, background: s.color }} /><span style={{ fontSize: 12, color: "#6B7280" }}>{s.label}</span></div>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 12 }}>
+              {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) => (
+                <div key={d} style={{ textAlign: "center", fontSize: 12, fontWeight: 600, color: "#9CA3AF", padding: "0 0 8px" }}>{d}</div>
+              ))}
+              {calItems.map((item, i) => <CalendarDay key={i} item={item} />)}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+              {[
+                { label: "Ideas", count: CALENDAR_ITEMS.filter(c => c.status === "idea").length, color: "#D1D5DB" },
+                { label: "Borradores", count: CALENDAR_ITEMS.filter(c => c.status === "draft").length, color: "#FCD34D" },
+                { label: "Aprobados", count: CALENDAR_ITEMS.filter(c => c.status === "approved").length, color: "#86EFAC" },
+                { label: "Programados", count: CALENDAR_ITEMS.filter(c => c.status === "scheduled").length, color: "#93C5FD" },
+                { label: "Publicados", count: CALENDAR_ITEMS.filter(c => c.status === "published").length, color: "#A78BFA" },
+              ].map((s) => (
+                <div key={s.label} style={{ background: COLORS.white, borderRadius: 12, padding: 16, textAlign: "center", borderTop: `3px solid ${s.color}`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.navy }}>{s.count}</div>
+                  <div style={{ fontSize: 13, color: "#6B7280" }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* === INTELLIGENCE === */}
+        {activeTab === "intelligence" && <IntelligenceTab />}
+
+        {/* === POST CREATOR === */}
+        {activeTab === "creator" && <PostCreatorTab />}
+
+        {/* === MEDIA LIBRARY === */}
+        {activeTab === "media" && <MediaLibraryTab />}
+
+        {/* === LOCATIONS === */}
+        {activeTab === "locations" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Performance por Locación</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+              {LOCATIONS_DATA.map((loc) => (
+                <SectionCard key={loc.name}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                    <MapPin size={18} color={COLORS.terracotta} />
+                    <h3 style={{ margin: 0, fontSize: 18, color: COLORS.navy }}>{loc.name}</h3>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                    <div><div style={{ fontSize: 24, fontWeight: 700, color: COLORS.navy }}>{loc.rating}</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>Rating</div></div>
+                    <div><div style={{ fontSize: 24, fontWeight: 700, color: COLORS.terracotta }}>{loc.reviews.toLocaleString()}</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>Reviews</div></div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: 13, color: "#6B7280" }}>Top Dish</span><span style={{ fontSize: 13, fontWeight: 600, color: COLORS.navy }}>{loc.topDish}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: 13, color: "#6B7280" }}>Margaritas/día</span><span style={{ fontSize: 13, fontWeight: 600, color: COLORS.terracotta }}>~{loc.dailyMargaritas}</span></div>
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontSize: 13, color: "#6B7280" }}>Sentiment</span><span style={{ fontSize: 13, fontWeight: 600, color: loc.sentiment > 85 ? COLORS.positive : COLORS.mustard }}>{loc.sentiment}%</span></div>
+                      <div style={{ height: 6, background: COLORS.lightGray, borderRadius: 3 }}><div style={{ height: "100%", width: `${loc.sentiment}%`, background: loc.sentiment > 85 ? COLORS.positive : COLORS.mustard, borderRadius: 3 }} /></div>
+                    </div>
+                  </div>
+                </SectionCard>
+              ))}
+            </div>
+            <div style={{ background: `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.accent1})`, borderRadius: 16, padding: 32, color: COLORS.white, textAlign: "center" }}>
+              <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 8 }}>Margaritas vendidas este año (estimado)</div>
+              <div style={{ fontSize: 48, fontWeight: 800, letterSpacing: -2 }}>~{(150 * 90).toLocaleString()}</div>
+              <div style={{ fontSize: 14, opacity: 0.8, marginTop: 8 }}>~150 diarias x 3 locaciones = contenido infinito</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ─── FOOTER ─── */}
+      <div style={{ padding: "20px 32px", textAlign: "center", borderTop: `1px solid ${COLORS.lightGray}`, marginTop: 40 }}>
+        <p style={{ margin: 0, fontSize: 12, color: "#9CA3AF" }}>
+          Oh! Mexico Platform • Brand Management Suite • Built by La Productora • Mar 2026
+        </p>
+      </div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(OhMexicoPlatform));
+</script>
+</body>
+</html>
