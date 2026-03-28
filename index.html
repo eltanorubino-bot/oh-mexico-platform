@@ -1115,7 +1115,7 @@ function PostCreatorTab() {
                 </button>
               </div>
               <textarea value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}
-                placeholder="Describe la imagen que quieres generar... S\u00e9 espec\u00edfico con colores, \u00e1ngulos, estilo y ambiente."
+                placeholder="Describe la imagen que quieres generar... Sé específico con colores, ángulos, estilo y ambiente."
                 style={{ width: "100%", minHeight: 80, padding: 12, borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
               />
               {!imagePrompt && PROMPT_SUGGESTIONS[selectedPillar] && (
@@ -1148,8 +1148,8 @@ function PostCreatorTab() {
               {generatedImages.length === 0 ? (
                 <>
                   <Image size={32} color="#D1D5DB" />
-                  <span style={{ fontSize: 13, color: "#9CA3AF" }}>Las im\u00e1genes generadas aparecer\u00e1n aqu\u00ed</span>
-                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Escrib\u00ed un prompt y hac\u00e9 click en Generar</span>
+                  <span style={{ fontSize: 13, color: "#9CA3AF" }}>Las imágenes generadas aparecerán aquí</span>
+                  <span style={{ fontSize: 11, color: "#D1D5DB" }}>Escribí un prompt y hacé click en Generar</span>
                 </>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
@@ -1173,12 +1173,12 @@ function PostCreatorTab() {
           </SectionCard>
 
           {editingImage && (
-            <SectionCard title="Ajustes de Imagen" subtitle="Edit\u00e1, regener\u00e1 o ped\u00ed variaciones">
+            <SectionCard title="Ajustes de Imagen" subtitle="Editá, regenerá o pedí variaciones">
               <div style={{ borderRadius: 10, overflow: "hidden", marginBottom: 12 }}>
                 <img src={editingImage.src} alt="Editing" style={{ width: "100%", height: "auto", display: "block", filter: `brightness(${imageAdjustments.brightness}%) contrast(${imageAdjustments.contrast}%) saturate(${imageAdjustments.saturate}%)` }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-                {[{ key: "brightness", label: "Brillo", icon: "\u2600\ufe0f" }, { key: "contrast", label: "Contraste", icon: "\u25d1" }, { key: "saturate", label: "Saturaci\u00f3n", icon: "\ud83c\udfa8" }].map(adj => (
+                {[{ key: "brightness", label: "Brillo", icon: "☀️" }, { key: "contrast", label: "Contraste", icon: "◑" }, { key: "saturate", label: "Saturación", icon: "🎨" }].map(adj => (
                   <div key={adj.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 12, width: 80, color: COLORS.darkGray }}>{adj.icon} {adj.label}</span>
                     <input type="range" min="50" max="150" value={imageAdjustments[adj.key]} onChange={(e) => setImageAdjustments(prev => ({ ...prev, [adj.key]: Number(e.target.value) }))} style={{ flex: 1, accentColor: COLORS.terracotta }} />
@@ -1188,8 +1188,8 @@ function PostCreatorTab() {
                 <button onClick={() => setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 })} style={{ alignSelf: "flex-end", fontSize: 11, color: "#9CA3AF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Resetear</button>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <button onClick={() => { const np = prompt("Edit\u00e1 el prompt para regenerar:", editingImage.prompt || imagePrompt); if (np) setImagePrompt(np); }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.navy}`, background: COLORS.white, color: COLORS.navy, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Edit3 size={14} /> Editar prompt y regenerar</button>
-                <button onClick={async () => { const vp = (editingImage.prompt || imagePrompt) + ", alternative angle, different composition, slight variation"; setGeneratingImage(true); const result = await FreepikAPI.generateImage(freepikKey, vp, { engine: selectedEngine, aspect_ratio: selectedRatio }); if (result && !result.error && result.images) setGeneratedImages(prev => [...result.images, ...prev]); setGeneratingImage(false); }} disabled={generatingImage} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.olive}`, background: `${COLORS.olive}10`, color: COLORS.olive, fontWeight: 600, fontSize: 13, cursor: generatingImage ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><RefreshCw size={14} /> Generar variaci\u00f3n</button>
+                <button onClick={() => { const np = prompt("Editá el prompt para regenerar:", editingImage.prompt || imagePrompt); if (np) setImagePrompt(np); }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.navy}`, background: COLORS.white, color: COLORS.navy, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Edit3 size={14} /> Editar prompt y regenerar</button>
+                <button onClick={async () => { const vp = (editingImage.prompt || imagePrompt) + ", alternative angle, different composition, slight variation"; setGeneratingImage(true); const result = await FreepikAPI.generateImage(freepikKey, vp, { engine: selectedEngine, aspect_ratio: selectedRatio }); if (result && !result.error && result.images) setGeneratedImages(prev => [...result.images, ...prev]); setGeneratingImage(false); }} disabled={generatingImage} style={{ width: "100%", padding: "10px", borderRadius: 8, border: `1px solid ${COLORS.olive}`, background: `${COLORS.olive}10`, color: COLORS.olive, fontWeight: 600, fontSize: 13, cursor: generatingImage ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><RefreshCw size={14} /> Generar variación</button>
                 <button onClick={() => { const canvas = document.createElement("canvas"); const im = new window.Image(); im.crossOrigin = "anonymous"; im.onload = () => { canvas.width = im.width; canvas.height = im.height; const ctx = canvas.getContext("2d"); ctx.filter = `brightness(${imageAdjustments.brightness}%) contrast(${imageAdjustments.contrast}%) saturate(${imageAdjustments.saturate}%)`; ctx.drawImage(im, 0, 0); setPostImage(canvas.toDataURL("image/jpeg", 0.95)); }; im.src = editingImage.src; }} style={{ width: "100%", padding: "10px", borderRadius: 8, border: "none", background: `linear-gradient(135deg, ${COLORS.terracotta}, ${COLORS.accent1})`, color: COLORS.white, fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Check size={14} /> Usar en post (con ajustes)</button>
               </div>
             </SectionCard>
@@ -1224,7 +1224,7 @@ function PostCreatorTab() {
                 ) : (
                   <div style={{ textAlign: "center" }}>
                     <Camera size={36} color={COLORS.terracotta} />
-                    <p style={{ fontSize: 12, color: COLORS.terracotta, marginTop: 8 }}>{postType.toUpperCase()} \u2022 {selectedRatio.replace("_", " ")}</p>
+                    <p style={{ fontSize: 12, color: COLORS.terracotta, marginTop: 8 }}>{postType.toUpperCase()} • {selectedRatio.replace("_", " ")}</p>
                   </div>
                 )}
               </div>
@@ -1488,7 +1488,7 @@ function MediaLibraryTab() {
               {/* Quick suggestions */}
               {!mlPrompt && (
                 <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                  {["Plato signature mexicano", "C\u00f3ctel en barra de bar", "Exterior del restaurante", "Ingredientes frescos"].map((sug, i) => (
+                  {["Plato signature mexicano", "Cóctel en barra de bar", "Exterior del restaurante", "Ingredientes frescos"].map((sug, i) => (
                     <button key={i} onClick={() => setMlPrompt(sug + ", professional food photography, warm lighting, vibrant colors")}
                       style={{ padding: "4px 10px", borderRadius: 16, border: `1px solid ${COLORS.lightGray}`, background: COLORS.white, fontSize: 11, color: COLORS.darkGray, cursor: "pointer" }}>
                       {sug}
@@ -1529,12 +1529,12 @@ function MediaLibraryTab() {
                           id: Date.now(),
                           name: img.prompt ? img.prompt.slice(0, 40) + "..." : "AI Generated",
                           category: "platos",
-                          location: "Espa\u00f1ola Way",
+                          location: "Española Way",
                           tags: ["ai-generated", "freepik"],
                           url: img.src,
                           date: new Date().toISOString().slice(0, 10),
                           size: "AI",
-                          dimensions: "1024\u00d71024",
+                          dimensions: "1024×1024",
                           usedIn: 0,
                           color: "#C4622D",
                         };
