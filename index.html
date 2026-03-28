@@ -1188,8 +1188,8 @@ function PostCreatorTab() {
                   <p style={{ fontSize: 13, color: COLORS.positive, fontWeight: 600, textAlign: "center" }}>{generatedImages.length} imagen(es) generada(s)</p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
                     {generatedImages.map(img => (
-                      <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: editingImage?.id === img.id ? `2px solid ${COLORS.terracotta}` : "1px solid #E5E7EB", cursor: "pointer", position: "relative" }}
-                        onClick={function() { handleSelectGeneratedImage(img.src, img); }}>
+                      <div key={img.id} style={{ borderRadius: 10, overflow: "hidden", border: (editingImage && editingImage.id === img.id) ? `2px solid ${COLORS.terracotta}` : "1px solid #E5E7EB", cursor: "pointer", position: "relative" }}
+                        onClick={function() { window.__setPostImage(img.src); window.__setEditingImage(img); window.__setImageAdjustments({ brightness: 100, contrast: 100, saturate: 100 }); }}>
                         <img src={img.src} alt={img.prompt} style={{ width: "100%", height: "auto", display: "block" }} />
                         {editingImage && editingImage.id === img.id && (
                           <div style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: COLORS.terracotta, display: "flex", alignItems: "center", justifyContent: "center" }}>
