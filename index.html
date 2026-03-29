@@ -1398,7 +1398,35 @@ function MediaLibraryTab() {
     { id: 18, name: "Mariachi Night", category: "locales", location: "Española Way", tags: ["mariachi", "music", "atmosphere"], url: null, date: "2026-02-22", size: "5.0 MB", dimensions: "4032×3024", usedIn: 3, color: "#1B2A4A" },
   ];
   const [mediaItems, setMediaItems] = useState(function() { try { var saved = localStorage.getItem("ohMediaItems"); if (saved) { var parsed = JSON.parse(saved); if (parsed.length > 0) return parsed; } } catch(e) {} return defaultMediaItems; });
-  useEffect(function() { try { var toSave = mediaItems.filter(function(m) { return !m.url || !m.url.startsWith("data:") || m.url.length < 50000; }); localStorage.setItem("ohMediaItems", JSON.stringify(toSave)); } catch(e) {} }, [mediaItems]);
+  useEffect(function() {
+        function compressDataUrl(dataUrl, maxW, quality) {
+          return new Promise(function(resolve) {
+            if (!dataUrl || !dataUrl.startsWith("data:image")) { resolve(dataUrl); return; }
+            var img = new Image();
+            img.onload = function() {
+              var cv = document.createElement("canvas");
+              var scale = Math.min(1, maxW / Math.max(img.width, img.height));
+              cv.width = img.width * scale; cv.height = img.height * scale;
+              cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+              resolve(cv.toDataURL("image/jpeg", quality));
+            };
+            img.onerror = function() { resolve(null); };
+            img.src = dataUrl;
+          });
+        }
+        (async function() {
+          try {
+            var toSave = await Promise.all(mediaItems.map(async function(m) {
+              if (m.url && m.url.startsWith("data:") && m.url.length > 50000) {
+                var compressed = await compressDataUrl(m.url, 400, 0.6);
+                return Object.assign({}, m, { url: compressed });
+              }
+              return m;
+            }));
+            localStorage.setItem("ohMediaItems", JSON.stringify(toSave));
+          } catch(e) {}
+        })();
+      }, [mediaItems]);
   const [uploadForm, setUploadForm] = useState({ name: "", category: "platos", location: "Española Way", tags: "" });
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadPreview, setUploadPreview] = useState(null);
