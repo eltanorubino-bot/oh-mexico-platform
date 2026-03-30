@@ -237,32 +237,38 @@ let RATING_TREND_DATA = [
 // ─── DEMO DATA (Instagram) ───
 const generateDemoFollowers = () => {
   const months = ["Oct", "Nov", "Dic", "Ene", "Feb", "Mar"];
+  const gains = [380, 520, 290, 610, 450, 340];
+  const losses = [45, 62, 38, 75, 55, 42];
   let base = 18200;
-  return months.map((m) => {
-    base += Math.floor(Math.random() * 600 + 200);
-    return { month: m, followers: base, gained: Math.floor(Math.random() * 400 + 150), lost: Math.floor(Math.random() * 80 + 20) };
+  return months.map((m, i) => {
+    base += gains[i];
+    return { month: m, followers: base, gained: gains[i], lost: losses[i] };
   });
 };
 
 const generateDemoEngagement = () => {
   const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-  return days.map((d) => ({
-    day: d,
-    likes: Math.floor(Math.random() * 300 + 150),
-    comments: Math.floor(Math.random() * 45 + 10),
-    shares: Math.floor(Math.random() * 30 + 5),
-    saves: Math.floor(Math.random() * 60 + 15),
-  }));
+  const data = [
+    { likes: 245, comments: 32, shares: 18, saves: 42 },
+    { likes: 380, comments: 48, shares: 25, saves: 56 },
+    { likes: 195, comments: 22, shares: 12, saves: 35 },
+    { likes: 310, comments: 41, shares: 28, saves: 63 },
+    { likes: 420, comments: 55, shares: 31, saves: 71 },
+    { likes: 385, comments: 47, shares: 22, saves: 58 },
+    { likes: 290, comments: 36, shares: 19, saves: 48 },
+  ];
+  return days.map((d, i) => ({ day: d, ...data[i] }));
 };
 
 const generateDemoReach = () => {
   const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
-  return weeks.map((w) => ({
-    week: w,
-    reach: Math.floor(Math.random() * 15000 + 25000),
-    impressions: Math.floor(Math.random() * 25000 + 40000),
-    profileVisits: Math.floor(Math.random() * 2000 + 3000),
-  }));
+  const data = [
+    { reach: 32400, impressions: 52800, profileVisits: 3850 },
+    { reach: 28700, impressions: 45200, profileVisits: 3420 },
+    { reach: 35100, impressions: 58600, profileVisits: 4210 },
+    { reach: 31800, impressions: 49300, profileVisits: 3780 },
+  ];
+  return weeks.map((w, i) => ({ week: w, ...data[i] }));
 };
 
 const DEMO_POSTS = [
@@ -528,6 +534,8 @@ function CalendarDay({ item }) {
 function ReputationTab() {
   const [selectedPlatform, setSelectedPlatform] = useState(null);
   const [reviewFilter, setReviewFilter] = useState("all");
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
 
   const totalReviews = REPUTATION_PLATFORMS.reduce((sum, p) => sum + p.locations.reduce((s, l) => s + l.reviews, 0), 0);
   const avgRating = (REPUTATION_PLATFORMS.reduce((sum, p) => sum + p.locations.reduce((s, l) => s + l.rating * l.reviews, 0), 0) / totalReviews).toFixed(1);
@@ -708,11 +716,29 @@ function ReputationTab() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
                   <span style={{ fontSize: 12, color: "#9CA3AF" }}>{review.date}</span>
                   {!review.replied && (
-                    <button style={{ padding: "5px 14px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                      Responder
+                    <button onClick={() => { setReplyingTo(replyingTo === i ? null : i); setReplyText(""); }}
+                      style={{ padding: "5px 14px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                      {replyingTo === i ? "Cancelar" : "Responder"}
                     </button>
                   )}
                 </div>
+                {replyingTo === i && (
+                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Escribe tu respuesta..."
+                      style={{ width: "100%", minHeight: 70, padding: 10, borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, fontFamily: "inherit", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
+                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                      <button onClick={() => setReplyingTo(null)}
+                        style={{ padding: "6px 16px", borderRadius: 8, background: COLORS.lightGray, color: COLORS.darkGray, border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                        Cancelar
+                      </button>
+                      <button onClick={() => { if (replyText.trim()) { review.replied = true; review.response = replyText.trim(); setReplyingTo(null); setReplyText(""); } }}
+                        style={{ padding: "6px 16px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer", opacity: replyText.trim() ? 1 : 0.5 }}>
+                        Enviar Respuesta
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -753,8 +779,22 @@ function IntelligenceTab() {
           <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Inteligencia & Trends</h2>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9CA3AF" }}>Reporte diario de competencia, tendencias y oportunidades</p>
         </div>
-        <button style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
-          <Download size={16} /> Exportar Reporte PDF
+        <button onClick={() => {
+          const lines = [];
+          lines.push("REPORTE DE INTELIGENCIA — Oh! Mexico");
+          lines.push("Fecha: " + new Date().toLocaleDateString("es-MX"));
+          lines.push("\n── INSIGHTS DE LA INDUSTRIA ──");
+          INDUSTRY_INSIGHTS.forEach(ins => lines.push("• " + ins.title + ": " + ins.description));
+          lines.push("\n── TRENDING TOPICS ──");
+          TRENDING_TOPICS.forEach(t => lines.push("• " + t.topic + " — " + t.volume + " (relevancia: " + t.relevance + "%)"));
+          lines.push("\n── COMPETENCIA ──");
+          COMPETITORS.forEach(c => lines.push("• " + c.name + " (" + c.handle + ") — " + c.followers + " seguidores, engagement " + c.engagement));
+          const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+          const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+          a.download = "Reporte-Inteligencia-OhMexico.txt"; a.click(); URL.revokeObjectURL(a.href);
+        }}
+          style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+          <Download size={16} /> Exportar Reporte
         </button>
       </div>
 
@@ -1374,6 +1414,7 @@ function MediaLibraryTab() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState("all");
   const [selectedImage, setSelectedImage] = useState(null);
   const [showUpload, setShowUpload] = useState(false);
   const defaultMediaItems = [
@@ -1457,7 +1498,8 @@ function MediaLibraryTab() {
   const filteredItems = mediaItems.filter(item => {
     const matchCat = activeCategory === "all" || item.category === activeCategory;
     const matchSearch = !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchCat && matchSearch;
+    const matchLoc = locationFilter === "all" || item.location === locationFilter;
+    return matchCat && matchSearch && matchLoc;
   });
 
   const handleUpload = () => {
@@ -1719,9 +1761,10 @@ function MediaLibraryTab() {
             </button>
           ))}
         </div>
-        <select style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, outline: "none", background: COLORS.white, color: COLORS.darkGray }}>
-          <option>Todas las locaciones</option>
-          {LOCATIONS.map(l => <option key={l}>{l}</option>)}
+        <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}
+          style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${COLORS.lightGray}`, fontSize: 13, outline: "none", background: COLORS.white, color: COLORS.darkGray }}>
+          <option value="all">Todas las locaciones</option>
+          {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
         </select>
       </div>
 
@@ -1860,7 +1903,15 @@ function MediaLibraryTab() {
                       {tag}
                     </span>
                   ))}
-                  <button style={{ padding: "4px 10px", borderRadius: 16, background: COLORS.lightGray, border: "none", fontSize: 12, color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  <button onClick={() => {
+                    const tag = prompt("Nuevo tag:");
+                    if (tag && tag.trim()) {
+                      const updated = mediaItems.map(m => m.id === selectedImage.id ? { ...m, tags: [...m.tags, tag.trim().toLowerCase()] } : m);
+                      setMediaItems(updated);
+                      setSelectedImage({ ...selectedImage, tags: [...selectedImage.tags, tag.trim().toLowerCase()] });
+                    }
+                  }}
+                    style={{ padding: "4px 10px", borderRadius: 16, background: COLORS.lightGray, border: "none", fontSize: 12, color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
                     <Plus size={12} /> Agregar
                   </button>
                 </div>
@@ -1868,13 +1919,29 @@ function MediaLibraryTab() {
 
               {/* Actions */}
               <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
-                <button style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <button onClick={() => {
+                  if (selectedImage?.url) {
+                    localStorage.setItem("ohMediaToPost", JSON.stringify({ url: selectedImage.url, name: selectedImage.name }));
+                  }
+                  alert("Imagen '" + selectedImage.name + "' lista para usar. Ve al tab Crear Post.");
+                }}
+                  style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                   <PenTool size={14} /> Usar en Post
                 </button>
-                <button style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <button onClick={() => {
+                  setMlPrompt("Improve photo of: " + selectedImage.name + " — " + selectedImage.tags.join(", "));
+                  setShowFreepikGen(true);
+                }}
+                  style={{ flex: 1, padding: "10px", borderRadius: 8, background: COLORS.navy, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                   <Wand2 size={14} /> Editar con Freepik
                 </button>
-                <button style={{ padding: "10px", borderRadius: 8, background: COLORS.lightGray, color: COLORS.darkGray, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <button onClick={() => {
+                  if (selectedImage?.url) {
+                    const a = document.createElement("a"); a.href = selectedImage.url;
+                    a.download = (selectedImage.name || "image").replace(/\s+/g, "-") + ".jpg"; a.click();
+                  } else { alert("Esta imagen no tiene archivo descargable (es un placeholder demo)."); }
+                }}
+                  style={{ padding: "10px", borderRadius: 8, background: COLORS.lightGray, color: COLORS.darkGray, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                   <Download size={14} />
                 </button>
                 <button onClick={() => handleDelete(selectedImage.id)}
@@ -1920,6 +1987,8 @@ function OhMexicoPlatform() {
   const [calendarMonth, setCalendarMonth] = useState(2);
   const [calendarYear, setCalendarYear] = useState(2026);
   const [selectedCalDay, setSelectedCalDay] = useState(null);
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [newEvent, setNewEvent] = useState({ title: "", type: "Feed", status: "idea", pillar: "Menú", caption: "", hashtags: "" });
   const [dataLastUpdated, setDataLastUpdated] = useState(null);
   const [dataVersion, setDataVersion] = useState(0);
 
@@ -2231,6 +2300,10 @@ function OhMexicoPlatform() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Calendario Editorial</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <button onClick={() => setShowAddEvent(!showAddEvent)}
+                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                  <Plus size={14} /> {showAddEvent ? "Cancelar" : "Nuevo Evento"}
+                </button>
                 <button onClick={calPrevMonth} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronLeft size={18} /></button>
                 <span style={{ fontSize: 16, fontWeight: 700, color: COLORS.navy, minWidth: 160, textAlign: "center" }}>{calMonthName} {calendarYear}</span>
                 <button onClick={calNextMonth} style={{ background: COLORS.white, border: `1px solid ${COLORS.lightGray}`, borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><ChevronRight size={18} /></button>
@@ -2241,6 +2314,66 @@ function OhMexicoPlatform() {
                 <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: 3, background: s.color }} /><span style={{ fontSize: 12, color: "#6B7280" }}>{s.label}</span></div>
               ))}
             </div>
+            {showAddEvent && (
+              <SectionCard style={{ border: "2px solid " + COLORS.terracotta + "30", background: COLORS.terracotta + "04" }}>
+                <h3 style={{ margin: "0 0 12px", fontSize: 16, color: COLORS.navy }}>Nuevo Evento</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Título</label>
+                    <input value={newEvent.title} onChange={(e) => setNewEvent({...newEvent, title: e.target.value})} placeholder="Ej: Reel: Taco Tuesday special"
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Fecha</label>
+                    <input type="date" id="calNewEventDate" defaultValue={calMonthStr + "-" + String(selectedCalDay || 1).padStart(2, "0")}
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Tipo</label>
+                    <select value={newEvent.type} onChange={(e) => setNewEvent({...newEvent, type: e.target.value})}
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, outline: "none", boxSizing: "border-box" }}>
+                      {["Feed", "Story", "Reel", "Carousel"].map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Status</label>
+                    <select value={newEvent.status} onChange={(e) => setNewEvent({...newEvent, status: e.target.value})}
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, outline: "none", boxSizing: "border-box" }}>
+                      {[["idea","Idea"],["draft","Borrador"],["approved","Aprobado"],["scheduled","Programado"]].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Pilar</label>
+                    <select value={newEvent.pillar} onChange={(e) => setNewEvent({...newEvent, pillar: e.target.value})}
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, outline: "none", boxSizing: "border-box" }}>
+                      {["Menú", "Lifestyle", "Promociones", "Comunidad", "Autenticidad"].map(p => <option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Caption</label>
+                    <textarea value={newEvent.caption} onChange={(e) => setNewEvent({...newEvent, caption: e.target.value})} placeholder="Escribe el caption del post..."
+                      style={{ width: "100%", minHeight: 60, padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, fontFamily: "inherit", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.navy, display: "block", marginBottom: 4 }}>Hashtags</label>
+                    <input value={newEvent.hashtags} onChange={(e) => setNewEvent({...newEvent, hashtags: e.target.value})} placeholder="#OhMexico #MiamiEats"
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid " + COLORS.lightGray, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
+                  </div>
+                </div>
+                <button onClick={() => {
+                  if (!newEvent.title.trim()) { alert("Agrega un título"); return; }
+                  const dateVal = document.getElementById("calNewEventDate").value;
+                  CALENDAR_ITEMS.push({ date: dateVal, title: newEvent.title, type: newEvent.type, status: newEvent.status, pillar: newEvent.pillar, caption: newEvent.caption, hashtags: newEvent.hashtags });
+                  setNewEvent({ title: "", type: "Feed", status: "idea", pillar: "Menú", caption: "", hashtags: "" });
+                  setShowAddEvent(false);
+                  const d = parseInt(dateVal.slice(8));
+                  setSelectedCalDay(d);
+                }}
+                  style={{ marginTop: 12, padding: "10px 24px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer", width: "100%" }}>
+                  Agregar al Calendario
+                </button>
+              </SectionCard>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
               {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) => (
                 <div key={d} style={{ textAlign: "center", fontSize: 12, fontWeight: 600, color: "#9CA3AF", padding: "8px 0" }}>{d}</div>
