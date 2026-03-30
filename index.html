@@ -920,8 +920,8 @@ function IntelligenceTab() {
 
 // ─── POST CREATOR TAB (Freepik Integration) ───
 function PostCreatorTab() {
-  const [freepikKey, setFreepikKey] = useState("FPSXf62e3dc95df686f556dc053c41690bdb");
-  const [freepikConnected, setFreepikConnected] = useState(true);
+  const [freepikKey, setFreepikKey] = useState(() => localStorage.getItem("ohm_freepik_key") || "");
+  const [freepikConnected, setFreepikConnected] = useState(() => !!localStorage.getItem("ohm_freepik_key"));
   const [postType, setPostType] = useState("feed");
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState("#OhMexico #MiamiEats #SouthBeach #MexicanFood");
@@ -1050,7 +1050,7 @@ function PostCreatorTab() {
               onChange={(e) => setFreepikKey(e.target.value)}
               style={{ flex: 1, padding: "10px 14px", borderRadius: 10, border: `1px solid ${COLORS.lightGray}`, fontSize: 14, outline: "none" }}
             />
-            <button onClick={() => { if (freepikKey.length > 5) setFreepikConnected(true); }}
+            <button onClick={() => { if (freepikKey.length > 5) { localStorage.setItem("ohm_freepik_key", freepikKey); setFreepikConnected(true); } }}
               style={{ padding: "10px 20px", borderRadius: 10, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
               Conectar
             </button>
@@ -1688,7 +1688,7 @@ function MediaLibraryTab() {
               <button onClick={async () => {
                 if (!mlPrompt) return;
                 setMlGenerating(true);
-                const result = await FreepikAPI.generateImage("FPSXf62e3dc95df686f556dc053c41690bdb", mlPrompt, { aspect_ratio: "square_1_1" });
+                const result = await FreepikAPI.generateImage(localStorage.getItem("ohm_freepik_key") || "", mlPrompt, { aspect_ratio: "square_1_1" });
                 if (result && !result.error && result.images) {
                   setMlGenerated(prev => [...result.images, ...prev]);
                 } else if (result && result.error) {
@@ -1988,7 +1988,9 @@ function OhMexicoPlatform() {
   const [calendarYear, setCalendarYear] = useState(2026);
   const [selectedCalDay, setSelectedCalDay] = useState(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [contentFilter, setContentFilter] = useState("Todos");
   const [newEvent, setNewEvent] = useState({ title: "", type: "Feed", status: "idea", pillar: "Menú", caption: "", hashtags: "" });
+  const [editingEventIdx, setEditingEventIdx] = useState(null);
   const [dataLastUpdated, setDataLastUpdated] = useState(null);
   const [dataVersion, setDataVersion] = useState(0);
 
@@ -2206,7 +2208,7 @@ function OhMexicoPlatform() {
               <h2 style={{ margin: 0, fontSize: 20, color: COLORS.navy }}>Performance de Contenido</h2>
               <div style={{ display: "flex", gap: 8 }}>
                 {["Todos", "Reels", "Carousel", "Feed", "Stories"].map((f) => (
-                  <button key={f} style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${COLORS.lightGray}`, background: f === "Todos" ? COLORS.navy : COLORS.white, color: f === "Todos" ? COLORS.white : COLORS.darkGray, fontSize: 13, fontWeight: 500, cursor: "pointer" }}>{f}</button>
+                  <button key={f} onClick={() => setContentFilter(f)} style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${COLORS.lightGray}`, background: contentFilter === f ? COLORS.navy : COLORS.white, color: contentFilter === f ? COLORS.white : COLORS.darkGray, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>{f}</button>
                 ))}
               </div>
             </div>
@@ -2214,7 +2216,7 @@ function OhMexicoPlatform() {
               <div style={{ display: "grid", gridTemplateColumns: "auto 1fr repeat(5, 70px) 70px", gap: 12, padding: "0 0 12px", borderBottom: `2px solid ${COLORS.lightGray}`, fontSize: 12, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase" }}>
                 <span>Tipo</span><span>Caption</span><span style={{ textAlign: "center" }}>Likes</span><span style={{ textAlign: "center" }}>Com.</span><span style={{ textAlign: "center" }}>Share</span><span style={{ textAlign: "center" }}>Save</span><span style={{ textAlign: "center" }}>Eng%</span><span style={{ textAlign: "center" }}>Fecha</span>
               </div>
-              {DEMO_POSTS.map((post) => <PostRow key={post.id} post={post} />)}
+              {DEMO_POSTS.filter(p => contentFilter === "Todos" || p.type.toLowerCase().includes(contentFilter.toLowerCase().replace("stories", "story"))).map((post) => <PostRow key={post.id} post={post} />)}
             </SectionCard>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
               {[
@@ -2363,14 +2365,20 @@ function OhMexicoPlatform() {
                 <button onClick={() => {
                   if (!newEvent.title.trim()) { alert("Agrega un título"); return; }
                   const dateVal = document.getElementById("calNewEventDate").value;
-                  CALENDAR_ITEMS.push({ date: dateVal, title: newEvent.title, type: newEvent.type, status: newEvent.status, pillar: newEvent.pillar, caption: newEvent.caption, hashtags: newEvent.hashtags });
+                  if (editingEventIdx !== null) {
+                    CALENDAR_ITEMS[editingEventIdx] = { date: dateVal, title: newEvent.title, type: newEvent.type, status: newEvent.status, pillar: newEvent.pillar, caption: newEvent.caption, hashtags: newEvent.hashtags };
+                    setEditingEventIdx(null);
+                  } else {
+                    CALENDAR_ITEMS.push({ date: dateVal, title: newEvent.title, type: newEvent.type, status: newEvent.status, pillar: newEvent.pillar, caption: newEvent.caption, hashtags: newEvent.hashtags });
+                  }
                   setNewEvent({ title: "", type: "Feed", status: "idea", pillar: "Menú", caption: "", hashtags: "" });
                   setShowAddEvent(false);
+                  setDataVersion(v => v + 1);
                   const d = parseInt(dateVal.slice(8));
                   setSelectedCalDay(d);
                 }}
                   style={{ marginTop: 12, padding: "10px 24px", borderRadius: 8, background: COLORS.terracotta, color: COLORS.white, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer", width: "100%" }}>
-                  Agregar al Calendario
+                  {editingEventIdx !== null ? "Guardar Cambios" : "Agregar al Calendario"}
                 </button>
               </SectionCard>
             )}
@@ -2421,6 +2429,10 @@ function OhMexicoPlatform() {
                               <span style={{ background: sc2[item.status], padding: "3px 10px", borderRadius: 10, fontSize: 11, fontWeight: 600 }}>{sl2[item.status]}</span>
                               <span style={{ background: `${COLORS.navy}10`, padding: "3px 10px", borderRadius: 10, fontSize: 11, fontWeight: 600, color: COLORS.navy }}>{item.type}</span>
                               <span style={{ background: `${COLORS.terracotta}15`, padding: "3px 10px", borderRadius: 10, fontSize: 11, fontWeight: 600, color: COLORS.terracotta }}>{item.pillar}</span>
+                            </div>
+                            <div style={{ display: "flex", gap: 6 }}>
+                              <button onClick={() => { const ci = CALENDAR_ITEMS.findIndex(c => c.date === item.date && c.title === item.title); if (ci > -1) { setNewEvent({ title: item.title, type: item.type, status: item.status, pillar: item.pillar || "Menú", caption: item.caption || "", hashtags: item.hashtags || "" }); setEditingEventIdx(ci); setShowAddEvent(true); } }} style={{ padding: "3px 10px", borderRadius: 8, background: COLORS.navy + "10", color: COLORS.navy, border: "none", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Editar</button>
+                              <button onClick={() => { if (confirm("¿Eliminar este evento?")) { const ci = CALENDAR_ITEMS.findIndex(c => c.date === item.date && c.title === item.title); if (ci > -1) { CALENDAR_ITEMS.splice(ci, 1); setDataVersion(v => v + 1); } } }} style={{ padding: "3px 10px", borderRadius: 8, background: "#FEE2E2", color: "#DC2626", border: "none", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Eliminar</button>
                             </div>
                           </div>
                           <h4 style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 700, color: COLORS.navy }}>{item.title}</h4>
